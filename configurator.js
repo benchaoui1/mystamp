@@ -14,6 +14,10 @@
     base:        129,
     logoFee:     49,
     logoData:    null,
+    logoName:    null,
+    logoType:    null,
+    licenseData: null,
+    licenseType: null,
     circleSize:  38,
     rectSize:    '50x20',
     licenseFile: null
@@ -176,6 +180,8 @@
       const reader = new FileReader();
       reader.onload = (e) => {
         S.logoData = e.target.result;
+        S.logoName = file.name;
+        S.logoType = file.type || '';
         els.fileName.textContent = file.name;
         els.fileRow.style.display = 'flex';
         els.uploadZone.classList.remove('show');
@@ -201,11 +207,20 @@
       els.licenseFileName.textContent = file.name;
       els.licenseFileRow.style.display = 'flex';
       els.licenseUploadZone.style.display = 'none';
+      // Keep the full file (base64) + type so checkout can upload it
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        S.licenseData = e.target.result;
+        S.licenseType = file.type || '';
+      };
+      reader.readAsDataURL(file);
     }
   }
 
   function removeLicense() {
     S.licenseFile = null;
+    S.licenseData = null;
+    S.licenseType = null;
     els.licenseFile.value = '';
     els.licenseFileRow.style.display = 'none';
     els.licenseUploadZone.style.display = 'flex';
@@ -720,6 +735,10 @@
                   : SZ[S.shape],
       withLogo:    els.logoToggle.checked,
       logoFile:    S.logoData ? 'uploaded' : null,
+      // Full files (base64) so checkout can upload them to storage
+      logoData:    S.logoData || null,
+      logoName:    S.logoName || null,
+      logoType:    S.logoType || null,
       withLicNum:  els.licToggle.checked,
       licNum:      els.fLic.value.trim(),
       company:     els.fName.value.trim(),
@@ -727,6 +746,8 @@
       emirate:     els.fEmirate.value,
       phone:       els.fPhone.value.trim(),
       license:     S.licenseFile,
+      licenseData: S.licenseData || null,
+      licenseType: S.licenseType || null,
       quantity:    S.qty,
       total:       parseInt(els.priceVal.textContent, 10),
       // Snapshot of the live stamp preview so checkout can show exactly
@@ -742,8 +763,19 @@
       })()
     };
 
-    // Store for checkout page
-    try { sessionStorage.setItem('mystamp_order', JSON.stringify(orderData)); } catch (e) {}
+    // Store for checkout page. If the logo/license base64 makes it too big
+    // for sessionStorage (~5MB), retry without them so checkout still works
+    // (Emirates ID is uploaded on the checkout page itself).
+    try {
+      sessionStorage.setItem('mystamp_order', JSON.stringify(orderData));
+    } catch (e) {
+      try {
+        var slim = Object.assign({}, orderData);
+        slim.logoData = null; slim.licenseData = null;
+        slim._filesDropped = true;
+        sessionStorage.setItem('mystamp_order', JSON.stringify(slim));
+      } catch (e2) { /* give up silently */ }
+    }
 
     // Replace with actual checkout URL when ready
     window.location.href = 'checkout.html';

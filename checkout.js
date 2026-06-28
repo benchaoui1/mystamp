@@ -486,8 +486,42 @@
     // customer from paying if Supabase is momentarily unavailable.
     if (!window.mystampOrders) return;
     try {
+      // 1) Emirates ID files (uploaded on this checkout page)
       var files = getIdFiles();
       var fileRefs = await window.mystampOrders.uploadFiles(ref, files);
+
+      // 2) Logo (carried over from the configurator as base64)
+      if (order.logoData) {
+        var logoRef = await window.mystampOrders.uploadDataUrl(
+          ref, order.logoData,
+          order.logoName || 'logo',
+          order.logoType || 'image/png'
+        );
+        if (logoRef) { logoRef.kind = 'logo'; fileRefs.push(logoRef); }
+      }
+
+      // 3) License document (carried over from the configurator as base64)
+      if (order.licenseData) {
+        var licRef = await window.mystampOrders.uploadDataUrl(
+          ref, order.licenseData,
+          order.license || 'license',
+          order.licenseType || 'application/octet-stream'
+        );
+        if (licRef) { licRef.kind = 'license'; fileRefs.push(licRef); }
+      }
+
+      // 4) The stamp DESIGN itself — convert the SVG preview to a PNG so you
+      //    receive exactly what the customer designed, as an image.
+      if (order.previewSvg && window.mystampOrders.svgToPngDataUrl) {
+        var designPng = await window.mystampOrders.svgToPngDataUrl(order.previewSvg, 600);
+        if (designPng) {
+          var designRef = await window.mystampOrders.uploadDataUrl(
+            ref, designPng, 'stamp-design.png', 'image/png'
+          );
+          if (designRef) { designRef.kind = 'design'; fileRefs.push(designRef); }
+        }
+      }
+
       await window.mystampOrders.saveOrder(buildOrderRow(p, ref, fileRefs, payVia));
     } catch (e) { /* don't block checkout on a storage hiccup */ }
   }
