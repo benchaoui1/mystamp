@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign &amp; Verify · MY STAMP — Signature Verification</title>
+  <meta name="description" content="Add your signature and verify it for your custom signature stamp. Sign smoothly on phone or computer, then upload a matching ID — fast, secure, MyStamp Dubai.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="signature.css">
+</head>
+<body>
+
+  <!-- HEADER (shared) -->
+  <header>
+    <div class="header-inner">
+
+      <a href="index.html" class="nav-logo">
+        <img
+          id="logoImg"
+          src="https://mystamp.ae/wp-content/uploads/2025/02/mystamp_logo_fx.svg"
+          alt="My Stamp"
+        >
+        <span class="logo-fallback" id="logoFallback">MY STAMP</span>
+      </a>
+
+      <nav class="main-nav">
+        <a href="#" class="nav-link">
+          Home
+          <svg class="nav-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </a>
+        <a href="#" class="nav-link">
+          Products
+          <svg class="nav-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </a>
+        <a href="#" class="nav-link">
+          Company Stamps
+          <svg class="nav-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </a>
+        <a href="#" class="nav-link">About</a>
+        <a href="contact-us.html" class="nav-link">Contact</a>
+      </nav>
+
+      <div class="header-actions">
+        <a href="https://wa.me/971544032018" class="icon-btn whatsapp-icon" target="_blank" rel="noopener" aria-label="WhatsApp">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.557 4.118 1.528 5.845L.057 23.484l5.797-1.52A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.903 0-3.68-.516-5.197-1.413l-.372-.222-3.441.901.921-3.36-.242-.386A9.937 9.937 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+          </svg>
+        </a>
+        <button class="icon-btn" aria-label="Search">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <a href="#" class="icon-btn cart-icon" aria-label="Shopping cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"/>
+            <circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 001.98 1.61h9.72a2 2 0 001.98-1.61L23 6H6"/>
+          </svg>
+          <span class="cart-badge">0</span>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════
+       SIGN & VERIFY
+  ═══════════════════════════════════════ -->
+  <section class="sig-hero">
+
+    <!-- Atmosphere -->
+    <div class="sig-atmos">
+      <div class="sig-atmos-grid"></div>
+      <div class="sig-atmos-glow sig-atmos-glow-1"></div>
+      <div class="sig-atmos-glow sig-atmos-glow-2"></div>
+    </div>
+    <div class="sig-sphere sig-sphere-1"></div>
+    <div class="sig-sphere sig-sphere-2"></div>
+    <div class="sig-sphere sig-sphere-3"></div>
+
+    <div class="sig-hero-wrap">
+
+      <!-- ═════ LEFT — narrative ═════ -->
+      <div class="sig-narrative">
+
+        <div class="sig-breadcrumb">
+          <a href="index.html">Home</a>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          <span class="sig-breadcrumb-current">Sign &amp; verify</span>
+        </div>
+
+        <div class="text-eyebrow">
+          <span class="eyebrow-bar"></span>
+          <span>Signature Verification · Dubai</span>
+        </div>
+
+        <h1 class="sig-title">
+          Add your<br><em>signature.</em>
+        </h1>
+
+        <p class="sig-sub">
+          Draw your signature right here — on your phone or your computer — then
+          upload an ID showing the same signature. We match the two to authorize
+          your custom signature stamp. It takes under a minute.
+        </p>
+
+        <div class="sig-steps">
+          <div class="sig-step">
+            <span class="sig-step-num">1</span>
+            <span class="sig-step-text">
+              <strong>Sign in the box</strong>
+              <span>Use your finger, stylus or mouse — then accept it</span>
+            </span>
+          </div>
+          <div class="sig-step">
+            <span class="sig-step-num">2</span>
+            <span class="sig-step-text">
+              <strong>Choose your ink</strong>
+              <span>Royal blue to match your stamp, or classic black</span>
+            </span>
+          </div>
+          <div class="sig-step">
+            <span class="sig-step-num">3</span>
+            <span class="sig-step-text">
+              <strong>Upload your ID</strong>
+              <span>Emirates ID, residence permit or passport — same signature</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="sig-trust">
+          <span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Encrypted upload
+          </span>
+          <span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            Never shared
+          </span>
+          <span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Deleted after review
+          </span>
+        </div>
+      </div>
+
+      <!-- ═════ RIGHT — signing console ═════ -->
+      <div class="sig-console">
+
+        <div id="sigConsoleBody">
+
+          <!-- Header -->
+          <div class="sig-console-head">
+            <div class="sig-console-title">
+              <span class="sig-console-title-mark">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+              </span>
+              Sign here
+            </div>
+            <span class="sig-console-hint">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11.24V7.5a2.5 2.5 0 0 1 5 0v3.74M9 11.24c-.78-.58-1.5-.74-2.5-.24-1 .5-1 2 0 3l4.5 6.5a3 3 0 0 0 2.5 1.5h3a4 4 0 0 0 4-4v-4a2 2 0 0 0-4 0"/></svg>
+              Touch &amp; mouse
+            </span>
+          </div>
+
+          <!-- Signature pad -->
+          <div class="sig-flabel">
+            Your signature
+            <div class="sig-mode" role="tablist" aria-label="Signature method">
+              <button class="sig-mode-btn active" id="sigModeDraw" role="tab" aria-selected="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+                Draw
+              </button>
+              <button class="sig-mode-btn" id="sigModeUpload" role="tab" aria-selected="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Upload
+              </button>
+            </div>
+          </div>
+
+          <div class="sig-pad-frame" id="sigPadFrame">
+            <div class="sig-pad" id="sigPad">
+              <canvas id="sigCanvas"></canvas>
+              <div class="sig-pad-cross">✕</div>
+              <div class="sig-pad-guide"></div>
+              <div class="sig-pad-empty">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17.5c4-1 5-6 7-6s2 4 4 4 3-9 5-9"/><path d="M3 21h18"/></svg>
+                <span>Sign here</span>
+              </div>
+
+              <!-- Upload-a-signature empty state -->
+              <div class="sig-pad-upload" id="sigPadUpload" tabindex="0" role="button" aria-label="Upload a signature image">
+                <input type="file" id="sigImgInput" accept="image/*">
+                <span class="sig-pad-upload-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  Upload your signature
+                </span>
+                <span class="sig-pad-upload-title">Already have a signature? Drop the photo here</span>
+                <span class="sig-pad-upload-hint">We'll <b>clean it up automatically</b> — remove the background and sharpen the ink so it looks crisp in the box.</span>
+              </div>
+
+              <!-- Scan / clean animation -->
+              <div class="sig-scan" id="sigScan"></div>
+              <span class="sig-clean-badge" id="sigCleanBadge">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Cleaned &amp; sharpened
+              </span>
+
+              <!-- Verified overlay -->
+              <div class="sig-pad-locked">
+                <span class="sig-lock-badge">
+                  <span class="sig-lock-check">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="24" stroke-dashoffset="0"><polyline points="20 6 9 17 4 12"/></svg>
+                  </span>
+                  Signature accepted
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pad toolbar -->
+          <div class="sig-pad-tools">
+            <div class="sig-ink">
+              <span class="sig-ink-label">Ink</span>
+              <button class="sig-ink-swatch active" data-ink="blue" style="background:#3a67ff" aria-label="Royal blue ink"></button>
+              <button class="sig-ink-swatch" data-ink="black" style="background:#15181f" aria-label="Black ink"></button>
+            </div>
+            <div class="sig-pad-actions">
+              <button class="sig-pad-btn" id="sigUndo" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+                Undo
+              </button>
+              <button class="sig-pad-btn" id="sigClear" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                Clear
+              </button>
+            </div>
+          </div>
+
+          <!-- Accept / re-sign -->
+          <button class="sig-accept" id="sigAccept" disabled style="margin-top:18px;">
+            <svg class="sig-accept-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span id="sigAcceptLabel">Accept signature</span>
+          </button>
+
+          <div class="sig-divider"></div>
+
+          <!-- ID upload -->
+          <div class="sig-flabel">
+            Upload your ID
+            <span class="sig-flabel-opt">Required</span>
+          </div>
+
+          <div class="sig-note">
+            <span class="sig-note-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </span>
+            <p><strong>Important:</strong> the ID you upload must show the <strong>same signature</strong> you just drew above. Accepted documents: Emirates ID, residence permit (Iqama) or passport.</p>
+          </div>
+
+          <div class="sig-drop" id="sigDrop" tabindex="0" role="button" aria-label="Upload your ID document">
+            <input type="file" id="sigFileInput" accept="image/*,.pdf,.heic">
+            <div class="sig-drop-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <div class="sig-drop-title">Tap to upload or <b>browse</b></div>
+            <div class="sig-drop-sub">JPG, PNG or PDF · up to 12 MB</div>
+          </div>
+
+          <div class="sig-file" id="sigFile">
+            <div class="sig-file-thumb" id="sigFileThumb"></div>
+            <div class="sig-file-meta">
+              <div class="sig-file-name" id="sigFileName">document.jpg</div>
+              <div class="sig-file-size" id="sigFileSize"></div>
+            </div>
+            <button class="sig-file-remove" id="sigFileRemove" aria-label="Remove file">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+
+          <!-- Submit -->
+          <button class="sig-submit" id="sigSubmit" disabled>
+            <span class="sig-submit-shine"></span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 3l8 4v5c0 4.5-3 8.5-8 10-5-1.5-8-5.5-8-10V7l8-4z"/></svg>
+            Submit for verification
+          </button>
+          <div class="sig-submit-hint">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Secured &amp; encrypted · reviewed within 4 working hours
+          </div>
+        </div>
+
+        <!-- Success state -->
+        <div class="sig-success" id="sigSuccess">
+          <div class="sig-success-ring">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <h3>Sent for verification</h3>
+          <p>Thanks! Our team will match your signature against your ID and prepare your stamp. You'll hear from us within 4 working hours.</p>
+          <div class="sig-success-meta" id="sigSuccessName">Signature captured</div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="footer" id="footer">
+
+    <!-- Decorative twinkling stars -->
+    <div class="footer-stars" aria-hidden="true">
+      <span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span>
+    </div>
+
+    <!-- Decorative glows -->
+    <div class="footer-glow footer-glow-1"></div>
+    <div class="footer-glow footer-glow-2"></div>
+    <div class="footer-glow footer-glow-3"></div>
+
+    <!-- Live status bar at the very top -->
+    <div class="footer-status-bar">
+      <div class="footer-status-wrap">
+        <div class="footer-status-item">
+          <span class="footer-status-pulse"></span>
+          <span><strong>Currently accepting orders</strong> · 2 designers online</span>
+        </div>
+        <div class="footer-status-divider"></div>
+        <div class="footer-status-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <span>Open 24/7 · Avg reply &lt; 5 mins</span>
+        </div>
+        <div class="footer-status-divider"></div>
+        <div class="footer-status-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          <span>Dubai · UAE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main footer content -->
+    <div class="footer-wrap">
+
+      <!-- Top section: 4 columns -->
+      <div class="footer-grid">
+
+        <!-- Column 1: Brand + newsletter -->
+        <div class="footer-col footer-col-brand">
+          <a href="#" class="footer-brand">
+            <span class="footer-brand-mark">
+              <img
+                src="https://mystamp.ae/wp-content/uploads/2025/02/mystamp_logo_fx.svg"
+                alt="MyStamp"
+                class="footer-brand-img"
+              >
+            </span>
+          </a>
+
+          <p class="footer-about">
+            The UAE's most trusted stamp maker. Handcrafted company, signature &amp; custom stamps delivered same-day in Dubai.
+          </p>
+
+          <!-- Newsletter signup -->
+          <form class="footer-newsletter" id="newsletterForm" onsubmit="event.preventDefault();" aria-label="Subscribe for offers">
+            <div class="footer-newsletter-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              Get exclusive offers
+            </div>
+            <div class="footer-newsletter-input-wrap">
+              <input type="email" id="newsletterEmail" placeholder="your@email.com" class="footer-newsletter-input" required>
+              <button type="submit" id="newsletterBtn" class="footer-newsletter-btn" aria-label="Subscribe">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                  <polyline points="12 5 19 12 12 19"/>
+                </svg>
+              </button>
+            </div>
+            <span class="footer-newsletter-hint">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              We never spam. Unsubscribe anytime.
+            </span>
+          </form>
+
+          <!-- Newsletter success state (hidden by default) -->
+          <div class="footer-newsletter-success" id="newsletterSuccess">
+            <div class="footer-newsletter-success-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <div class="footer-newsletter-success-text">
+              <strong>Successfully subscribed!</strong>
+              <span>Check your inbox for a welcome email 💌</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 2: Products -->
+        <div class="footer-col">
+          <h3 class="footer-col-title">
+            <span class="footer-col-title-dot"></span>
+            Stamps
+          </h3>
+          <ul class="footer-links">
+            <li><a href="#configurator"><span>Company Stamps</span><span class="footer-link-arrow">↗</span></a></li>
+            <li><a href="#configurator"><span>Signature Stamps</span><span class="footer-link-arrow">↗</span></a></li>
+            <li><a href="#configurator"><span>Date Stamps</span><span class="footer-link-arrow">↗</span></a></li>
+            <li><a href="#configurator"><span>Logo Stamps</span><span class="footer-link-arrow">↗</span></a></li>
+            <li><a href="#configurator"><span>Self-Inking Stamps</span><span class="footer-link-arrow">↗</span></a></li>
+          </ul>
+        </div>
+
+        <!-- Column 3: Company -->
+        <div class="footer-col">
+          <h3 class="footer-col-title">
+            <span class="footer-col-title-dot"></span>
+            Company
+          </h3>
+          <ul class="footer-links">
+            <li><a href="#journey"><span>How it works</span><span class="footer-link-arrow">↗</span></a></li>
+            <li><a href="#reviews"><span>Customer reviews</span><span class="footer-link-arrow">↗</span></a></li>
+            <li><a href="#faq"><span>FAQ</span><span class="footer-link-arrow">↗</span></a></li>
+            <li><a href="#"><span>About us</span><span class="footer-link-arrow">↗</span></a></li>
+            <li><a href="#"><span>Bulk orders</span><span class="footer-link-arrow">↗</span></a></li>
+          </ul>
+        </div>
+
+        <!-- Column 4: Contact -->
+        <div class="footer-col footer-col-contact">
+          <h3 class="footer-col-title">
+            <span class="footer-col-title-dot"></span>
+            Get in touch
+          </h3>
+
+          <a href="https://wa.me/971544032018" target="_blank" rel="noopener" class="footer-contact-item footer-contact-item-wa">
+            <span class="footer-contact-icon">
+              <svg viewBox="0 0 32 32" fill="currentColor">
+                <path d="M16.001 0C7.165 0 .002 7.163.002 16c0 2.825.738 5.479 2.03 7.781L0 32l8.434-2.207A15.93 15.93 0 0 0 16.001 32C24.836 32 32 24.837 32 16S24.836 0 16.001 0zm7.405 19.382c-.406-.203-2.4-1.184-2.772-1.32-.371-.135-.642-.203-.913.203-.27.406-1.047 1.32-1.284 1.591-.236.27-.473.305-.879.102-.405-.203-1.713-.631-3.262-2.013-1.206-1.076-2.02-2.404-2.257-2.81-.236-.405-.025-.625.178-.827.182-.182.405-.474.608-.71.203-.237.27-.406.405-.677.135-.27.067-.508-.034-.71-.102-.204-.913-2.198-1.25-3.009-.33-.79-.665-.683-.913-.696-.236-.012-.507-.014-.778-.014a1.49 1.49 0 0 0-1.082.508c-.371.406-1.418 1.387-1.418 3.38 0 1.995 1.451 3.922 1.654 4.193.203.27 2.857 4.36 6.92 6.116.967.418 1.722.667 2.31.854.97.309 1.853.265 2.55.16.778-.116 2.4-.98 2.738-1.928.338-.948.338-1.76.237-1.929-.102-.169-.371-.27-.778-.474z"/>
+              </svg>
+            </span>
+            <span class="footer-contact-text">
+              <span class="footer-contact-label">WhatsApp · 24/7</span>
+              <span class="footer-contact-value">+971 54 403 2018</span>
+            </span>
+          </a>
+
+          <a href="mailto:contact@mystamp.ae" class="footer-contact-item">
+            <span class="footer-contact-icon footer-contact-icon-blue">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+            </span>
+            <span class="footer-contact-text">
+              <span class="footer-contact-label">Email</span>
+              <span class="footer-contact-value">contact@mystamp.ae</span>
+            </span>
+          </a>
+
+          <a href="contact-us.html" class="footer-contact-item">
+            <span class="footer-contact-icon footer-contact-icon-blue">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+            </span>
+            <span class="footer-contact-text">
+              <span class="footer-contact-label">Studio · 9 AM – 10 PM</span>
+              <span class="footer-contact-value">Deira, Dubai, UAE</span>
+            </span>
+          </a>
+
+          <!-- Bottom link to full contact page -->
+          <a href="contact-us.html" class="footer-contact-cta">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            View full contact page
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </a>
+        </div>
+
+      </div>
+
+      <!-- Trust strip: brands + payment methods -->
+      <div class="footer-trust">
+
+        <div class="footer-trust-section">
+          <div class="footer-trust-label">Certified partner of</div>
+          <div class="footer-trust-brands">
+            <span class="footer-brand-pill">Trodat</span>
+            <span class="footer-brand-pill">Shiny</span>
+            <span class="footer-brand-pill">Colop</span>
+            <span class="footer-brand-pill">MaxStamp</span>
+          </div>
+        </div>
+
+        <div class="footer-trust-divider"></div>
+
+        <div class="footer-trust-section">
+          <div class="footer-trust-label">Secure payments</div>
+          <div class="footer-trust-payments">
+            <!-- Visa -->
+            <span class="footer-pay-method">
+              <svg viewBox="0 0 36 24" aria-hidden="true">
+                <rect width="36" height="24" rx="3" fill="#fff"/>
+                <text x="18" y="16" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="9" font-weight="900" fill="#1a1f71" letter-spacing="-0.5">VISA</text>
+              </svg>
+            </span>
+            <!-- Mastercard -->
+            <span class="footer-pay-method">
+              <svg viewBox="0 0 36 24" aria-hidden="true">
+                <rect width="36" height="24" rx="3" fill="#fff"/>
+                <circle cx="14" cy="12" r="6" fill="#eb001b"/>
+                <circle cx="22" cy="12" r="6" fill="#f79e1b" opacity="0.85"/>
+              </svg>
+            </span>
+            <!-- Amex -->
+            <span class="footer-pay-method">
+              <svg viewBox="0 0 36 24" aria-hidden="true">
+                <rect width="36" height="24" rx="3" fill="#006fcf"/>
+                <text x="18" y="15" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="7" font-weight="900" fill="#fff" letter-spacing="-0.3">AMEX</text>
+              </svg>
+            </span>
+            <!-- Apple Pay -->
+            <span class="footer-pay-method">
+              <svg viewBox="0 0 36 24" aria-hidden="true">
+                <rect width="36" height="24" rx="3" fill="#000"/>
+                <text x="18" y="15" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="7" font-weight="600" fill="#fff">Pay</text>
+              </svg>
+            </span>
+            <!-- Cash -->
+            <span class="footer-pay-method footer-pay-method-text">
+              <span>Cash on delivery</span>
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom legal strip -->
+      <div class="footer-bottom">
+        <div class="footer-copyright">
+          © 2026 <strong>MyStamp.ae</strong> — Crafted with precision in Dubai 🇦🇪
+        </div>
+        <div class="footer-legal">
+          <a href="privacy-policy.html">Privacy</a>
+          <span class="footer-legal-dot">·</span>
+          <a href="terms-conditions.html">Terms</a>
+          <span class="footer-legal-dot">·</span>
+          <a href="refund-returns.html">Refunds</a>
+          <span class="footer-legal-dot">·</span>
+          <a href="contact-us.html">Contact</a>
+        </div>
+        <div class="footer-back-top">
+          <a href="#" class="footer-back-top-btn" aria-label="Back to top">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="18 15 12 9 6 15"/>
+            </svg>
+            <span>Back to top</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+
+  <!-- ═══════════════════════════════════════
+       FLOATING WHATSAPP — Always visible, premium feel
+  ═══════════════════════════════════════ -->
+  <a href="https://wa.me/971544032018?text=Hello%20MY%20STAMP!%20I%20need%20help%20with%20my%20order"
+     class="wa-float"
+     id="waFloat"
+     target="_blank"
+     rel="noopener"
+     aria-label="Chat with us on WhatsApp">
+
+    <span class="wa-float-bubble" id="waFloatBubble">
+      <span class="wa-float-bubble-text">
+        <strong>Need help?</strong>
+        <small>Chat with us instantly</small>
+      </span>
+      <button class="wa-float-bubble-close" id="waFloatClose" aria-label="Close" type="button">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </span>
+
+    <span class="wa-float-btn">
+      <span class="wa-float-ring"></span>
+      <span class="wa-float-ring wa-float-ring-2"></span>
+      <svg class="wa-float-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.557 4.118 1.528 5.845L.057 23.484l5.797-1.52A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.903 0-3.68-.516-5.197-1.413l-.372-.222-3.441.901.921-3.36-.242-.386A9.937 9.937 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+      </svg>
+      <span class="wa-float-badge">1</span>
+    </span>
+  </a>
+
+  <!-- SCRIPTS -->
+  <script src="signature.js"></script>
+
+</body>
+</html>

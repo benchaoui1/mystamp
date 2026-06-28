@@ -119,7 +119,6 @@
               <polyline points="12 5 19 12 12 19"/>
             </svg>
           </a>
-          <a href="#" class="cta-ghost">View Catalog</a>
         </div>
 
       </div>
@@ -373,46 +372,48 @@
 
           <!-- Toggles -->
           <div class="cfg-card">
-            <div class="toggle-row">
-              <div style="width:100%;">
-                <div class="t-label">Logo</div>
-                <div class="t-desc">Add your logo to the stamp for only <strong>AED 49</strong></div>
-                <div class="upload-zone" id="uploadZone">
-                  <div class="upload-icon">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                      <polyline points="17 8 12 3 7 8"/>
-                      <line x1="12" y1="3" x2="12" y2="15"/>
-                    </svg>
-                  </div>
-                  <div class="upload-name">Upload a new logo</div>
-                  <div class="upload-hint">Click to select a file — Maximum 25MB</div>
-                  <input type="file" id="logoFile" accept=".jpg,.jpeg,.png">
+            <div class="toggle-row toggle-row-logo">
+              <div class="toggle-head">
+                <div>
+                  <div class="t-label">Logo</div>
+                  <div class="t-desc">Add your logo to the stamp for only <strong>AED 49</strong></div>
                 </div>
-                <div class="file-row" id="fileRow" style="display:none;">
-                  <span class="file-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                      <polyline points="14 2 14 8 20 8"/>
-                    </svg>
-                  </span>
-                  <span class="file-name" id="fileName"></span>
-                  <button class="file-delete" id="removeLogoBtn" title="Remove">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="3 6 5 6 21 6"/>
-                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                    </svg>
-                  </button>
-                </div>
-                <div class="upload-meta" id="uploadMeta" style="display:none;">
-                  <span>Supported formats: <strong>JPG, JPEG, PNG</strong></span>
-                  <span>Max file size: <strong>25MB</strong></span>
-                </div>
+                <label class="switch">
+                  <input type="checkbox" id="logoToggle">
+                  <span class="knob"></span>
+                </label>
               </div>
-              <label class="switch">
-                <input type="checkbox" id="logoToggle">
-                <span class="knob"></span>
-              </label>
+              <div class="upload-zone" id="uploadZone">
+                <div class="upload-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                </div>
+                <div class="upload-name">Upload a new logo</div>
+                <div class="upload-hint">Click to select a file — Maximum 25MB</div>
+                <input type="file" id="logoFile" accept=".jpg,.jpeg,.png">
+              </div>
+              <div class="file-row" id="fileRow" style="display:none;">
+                <span class="file-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                  </svg>
+                </span>
+                <span class="file-name" id="fileName"></span>
+                <button class="file-delete" id="removeLogoBtn" title="Remove">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="upload-meta" id="uploadMeta" style="display:none;">
+                <span>Supported formats: <strong>JPG, JPEG, PNG</strong></span>
+                <span>Max file size: <strong>25MB</strong></span>
+              </div>
             </div>
             <div class="toggle-row">
               <div>
@@ -517,7 +518,7 @@
               <div class="size-tag" id="sizeTag" style="display:none;"><em>Size:</em><span id="sizeTxt">38MM</span></div>
             </div>
 
-            <div class="info-box">
+            <div class="info-box info-box-keep">
               <div class="info-i blue">i</div>
               <p>Our team will extract the English and Arabic company names directly from your trade license</p>
             </div>
@@ -616,6 +617,9 @@
             </span>
           </div>
         </div>
+
+        <!-- Mobile-only: order summary + checkout relocates here (after the form) -->
+        <div id="cfgCheckoutMobile"></div>
 
       </div>
     </div>
@@ -1399,7 +1403,8 @@
           </h3>
           <ul class="footer-links">
             <li><a href="#configurator"><span>Company Stamps</span><span class="footer-link-arrow">↗</span></a></li>
-            <li><a href="#configurator"><span>Signature Stamps</span><span class="footer-link-arrow">↗</span></a></li>
+            <li><a href="signature.html"><span>Signature Stamps</span><span class="footer-link-arrow">↗</span></a></li>
+            <li><a href="signature.html"><span>Sign &amp; verify ID</span><span class="footer-link-arrow">↗</span></a></li>
             <li><a href="#configurator"><span>Date Stamps</span><span class="footer-link-arrow">↗</span></a></li>
             <li><a href="#configurator"><span>Logo Stamps</span><span class="footer-link-arrow">↗</span></a></li>
             <li><a href="#configurator"><span>Self-Inking Stamps</span><span class="footer-link-arrow">↗</span></a></li>
@@ -1568,7 +1573,7 @@
   <!-- ═══════════════════════════════════════
        FLOATING WHATSAPP — Always visible, premium feel
   ═══════════════════════════════════════ -->
-  <a href="https://wa.me/971XXXXXXXXX?text=Hello%20MY%20STAMP!%20I%20need%20help%20with%20my%20order"
+  <a href="https://wa.me/971544032018?text=Hello%20MY%20STAMP!%20I%20need%20help%20with%20my%20order"
      class="wa-float"
      id="waFloat"
      target="_blank"
@@ -1823,6 +1828,31 @@
 
   <!-- External configurator logic -->
   <script src="configurator.js"></script>
+
+  <!-- Move the order summary + checkout below the form on mobile,
+       keep it inside the preview card on desktop (no duplication) -->
+  <script>
+    (function () {
+      var priceBlock = document.querySelector('.price-block');
+      var mobileSlot = document.getElementById('cfgCheckoutMobile');
+      if (!priceBlock || !mobileSlot) return;
+      var homeParent = priceBlock.parentNode;          // preview-card (desktop home)
+      var homeNext   = priceBlock.nextSibling;
+      var mq = window.matchMedia('(max-width: 900px)');
+
+      function place() {
+        if (mq.matches) {
+          if (priceBlock.parentNode !== mobileSlot) mobileSlot.appendChild(priceBlock);
+        } else if (priceBlock.parentNode !== homeParent) {
+          if (homeNext && homeNext.parentNode === homeParent) homeParent.insertBefore(priceBlock, homeNext);
+          else homeParent.appendChild(priceBlock);
+        }
+      }
+      place();
+      if (mq.addEventListener) mq.addEventListener('change', place);
+      else if (mq.addListener) mq.addListener(place);
+    })();
+  </script>
 
 </body>
 </html>

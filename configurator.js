@@ -241,6 +241,10 @@
 
     const svg = els.stampSvg;
     svg.innerHTML = '';
+    // Reset any inline sizing from a previous render (shape switch)
+    svg.style.width = '';
+    svg.style.height = '';
+    svg.style.maxWidth = '';
 
     // Re-trigger fade-in animation
     svg.style.animation = 'none';
@@ -279,6 +283,30 @@
       return Math.max(9, Math.floor(baseSize * (maxLength / estimatedWidth)));
     }
 
+    /* Helper: append text, then measure its real width and shrink the
+       font-size down until it fits inside maxWidth px. Prevents long
+       company names from spilling outside the rect/square borders. */
+    function fitTextToWidth(attrs, txt, maxWidth, minSize) {
+      const el = tx(attrs, txt);
+      svg.appendChild(el);
+      const baseSize = parseFloat(attrs['font-size']);
+      const floor = minSize || 8;
+      try {
+        let measured = el.getComputedTextLength();
+        if (measured > maxWidth) {
+          let newSize = Math.max(floor, baseSize * (maxWidth / measured));
+          el.setAttribute('font-size', String(newSize));
+          // One more pass in case letter-spacing skewed the estimate
+          measured = el.getComputedTextLength();
+          if (measured > maxWidth) {
+            newSize = Math.max(floor, newSize * (maxWidth / measured));
+            el.setAttribute('font-size', String(newSize));
+          }
+        }
+      } catch (e) { /* getComputedTextLength unavailable — leave as-is */ }
+      return el;
+    }
+
     /* ── CIRCLE ── */
     if (S.shape === 'circle') {
       const cx = 150, cy = 150;
@@ -287,9 +315,15 @@
       const RmAr = 118;  // Arabic arc — BOTTOM
 
       svg.setAttribute('viewBox', '0 0 300 300');
-      const displayPx = Math.round(300 * (S.circleSize / 38));
-      svg.setAttribute('width', displayPx);
-      svg.setAttribute('height', displayPx);
+      // Scale relative to the largest circle (40mm = 100%). This ratio is
+      // applied via inline max-width so it scales correctly even inside the
+      // capped mobile preview container.
+      const sizePct = (S.circleSize / 40) * 100;
+      svg.setAttribute('width', 300);
+      svg.setAttribute('height', 300);
+      svg.style.width = sizePct + '%';
+      svg.style.height = 'auto';
+      svg.style.maxWidth = sizePct + '%';
 
       svg.appendChild(mk('circle', { cx, cy, r: R1, fill: 'none', stroke: C, 'stroke-width': '4.5' }));
       svg.appendChild(mk('circle', { cx, cy, r: R2, fill: 'none', stroke: C, 'stroke-width': '1.5' }));
@@ -398,6 +432,7 @@
       const upperH = dividerY - innerTop;
       const upperLineH = upperH / upperItems.length;
       const upperStartY = innerTop + upperLineH / 2;
+      const sqMaxW = (innerRight - innerLeft) - 8;  // safe inner width
 
       upperItems.forEach((it, i) => {
         const y = upperStartY + i * upperLineH;
@@ -417,7 +452,7 @@
           attrs['font-weight'] = '700';
           attrs['letter-spacing'] = '0.5';
         }
-        svg.appendChild(tx(attrs, it.text));
+        fitTextToWidth(attrs, it.text, sqMaxW, 9);
       });
 
       // LOWER section
@@ -434,7 +469,7 @@
         const y = lowerStartY + i * lowerLineH;
         // Center line (emirate) is bigger; surrounding lines are smaller
         const isEmirate = (line === em);
-        svg.appendChild(tx({
+        fitTextToWidth({
           x: W / 2, y: y + 4,
           'font-family': FF,    // Manrope — same for all
           'font-size': isEmirate ? '14' : '12',
@@ -442,7 +477,7 @@
           'letter-spacing': isEmirate ? '2' : '0',
           'fill': C,
           'text-anchor': 'middle'
-        }, line));
+        }, line, sqMaxW, 8);
       });
     }
 
@@ -520,11 +555,13 @@
       const startY = cy - blockH / 2 + lineH / 2;
 
       // ─── DRAW EACH LINE ───
+      // Keep text clear of the side stars: reserve ~26px on each side.
+      const rectMaxW = (innerRight - innerLeft) - 52;
       allLines.forEach((line, i) => {
         const y = startY + i * lineH;
         const style = styleMap[line.role];
 
-        svg.appendChild(tx({
+        fitTextToWidth({
           x: cx, y: y + style.fs * 0.35,
           'font-family': FF,
           'font-size': String(style.fs),
@@ -532,7 +569,7 @@
           'letter-spacing': style.ls,
           'fill': C,
           'text-anchor': 'middle'
-        }, line.text));
+        }, line.text, rectMaxW, line.role === 'small' ? 8 : 10);
       });
 
       // ─── DRAW STARS AT THE TRUE VERTICAL CENTER (cy) ───
@@ -691,7 +728,18 @@
       phone:       els.fPhone.value.trim(),
       license:     S.licenseFile,
       quantity:    S.qty,
-      total:       parseInt(els.priceVal.textContent, 10)
+      total:       parseInt(els.priceVal.textContent, 10),
+      // Snapshot of the live stamp preview so checkout can show exactly
+      // what the customer designed.
+      previewSvg:  (function () {
+        try {
+          const clone = els.stampSvg.cloneNode(true);
+          clone.removeAttribute('style');
+          clone.setAttribute('width', '300');
+          clone.setAttribute('height', '300');
+          return new XMLSerializer().serializeToString(clone);
+        } catch (e) { return null; }
+      })()
     };
 
     // Store for checkout page
@@ -754,9 +802,91 @@
     els.checkoutBtn.addEventListener('click', checkout);
   }
 
+  /* ── Restore prior design (when returning via "Edit design") ── */
+  function restoreState() {
+    var shouldRestore = false;
+    try { shouldRestore = sessionStorage.getItem('mystamp_edit') === '1'; } catch (e) {}
+    if (!shouldRestore) return;
+
+    var data = null;
+    try { data = JSON.parse(sessionStorage.getItem('mystamp_order') || 'null'); } catch (e) {}
+    try { sessionStorage.removeItem('mystamp_edit'); } catch (e) {}
+    if (!data) return;
+
+    // Shape
+    if (data.shape) {
+      S.shape = data.shape;
+      els.shapeBtns.forEach(function (b) {
+        b.classList.toggle('active', b.dataset.shape === data.shape);
+        if (b.dataset.shape === data.shape && els.shapeValue) els.shapeValue.textContent = b.dataset.name;
+      });
+      const isCircle = data.shape === 'circle';
+      const isRect = data.shape === 'rect';
+      els.sizePicker.style.display = isCircle ? 'flex' : 'none';
+      els.rectSizePicker.style.display = isRect ? 'flex' : 'none';
+      els.sizeTag.style.display = (isCircle || isRect) ? 'none' : 'inline-block';
+      if (!isCircle && !isRect && els.sizeTxt) els.sizeTxt.textContent = SZ[data.shape];
+    }
+
+    // Color
+    if (data.color) {
+      S.color = data.color;
+      els.colorBtns.forEach(function (b) {
+        var on = (b.dataset.color || '').toLowerCase() === data.color.toLowerCase();
+        b.classList.toggle('active', on);
+        if (on && els.colorValue) els.colorValue.textContent = b.dataset.name;
+      });
+    }
+
+    // Size (circle / rect)
+    if (data.size) {
+      var sz = String(data.size).replace('MM', '');
+      if (S.shape === 'circle') {
+        S.circleSize = parseInt(sz, 10) || S.circleSize;
+        els.sizePills.forEach(function (b) {
+          b.classList.toggle('active', parseInt(b.dataset.size, 10) === S.circleSize);
+        });
+      } else if (S.shape === 'rect') {
+        S.rectSize = sz;
+        els.rectSizePills.forEach(function (b) {
+          b.classList.toggle('active', b.dataset.rectsize === sz);
+        });
+      }
+    }
+
+    // Form fields
+    if (data.company && els.fName) els.fName.value = data.company;
+    if (data.pobox && els.fPobox) els.fPobox.value = data.pobox;
+    if (data.emirate && els.fEmirate) els.fEmirate.value = data.emirate;
+    if (data.phone && els.fPhone) els.fPhone.value = data.phone;
+
+    // License number toggle
+    if (data.withLicNum && els.licToggle) {
+      els.licToggle.checked = true;
+      els.licRow.style.display = 'flex';
+      if (data.licNum && els.fLic) els.fLic.value = data.licNum;
+    }
+
+    // Logo toggle (file itself can't be restored for security; flag the intent)
+    if (data.withLogo && els.logoToggle) {
+      els.logoToggle.checked = true;
+      els.uploadMeta.style.display = 'flex';
+      els.logoInfo.style.display = 'flex';
+      els.uploadZone.classList.add('show');
+    }
+
+    // Quantity
+    if (data.quantity) {
+      S.qty = Math.max(1, parseInt(data.quantity, 10) || 1);
+      if (els.qtyVal) els.qtyVal.textContent = S.qty;
+    }
+  }
+
   /* ── Init ──────────────────────────────────────── */
   function init() {
     bindEvents();
+    restoreState();
+    calcPrice();
     render();
   }
 

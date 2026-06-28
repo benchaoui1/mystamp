@@ -1312,6 +1312,43 @@ header {
   background: #eef3fc;
 }
 .upload-zone.show { display: flex; }
+
+/* Logo toggle row — stack label+switch on one line, upload box full width */
+.toggle-row-logo { flex-direction: column; align-items: stretch; gap: 0; }
+.toggle-row-logo .toggle-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px; width: 100%;
+}
+.toggle-row-logo .upload-zone,
+.toggle-row-logo .file-row,
+.toggle-row-logo .upload-meta { width: 100%; }
+
+/* Touch + keyboard equivalents of the desktop hover glow */
+.upload-zone:active,
+.upload-zone:focus-within {
+  border-color: var(--cfg-active);
+  background: #eef3fc;
+}
+.upload-zone:active .upload-icon,
+.upload-zone:focus-within .upload-icon { color: var(--cfg-active); }
+
+.lic-compact:active,
+.lic-compact:focus-within {
+  border-color: var(--cfg-active);
+  background: linear-gradient(180deg, #eef3fc 0%, #dbe7fb 100%);
+  box-shadow: 0 4px 14px rgba(0, 46, 138, 0.10);
+}
+.lic-compact:active .lic-compact-iconwrap,
+.lic-compact:focus-within .lic-compact-iconwrap {
+  background: var(--cfg-active); border-color: var(--cfg-active); color: #fff;
+  box-shadow: 0 3px 10px rgba(0, 46, 138, 0.25);
+}
+.lic-compact:active .lic-compact-arrow,
+.lic-compact:focus-within .lic-compact-arrow { color: var(--cfg-active); }
+
+/* On touch devices (no hover) make the upload areas clearly tappable —
+   the discoverability glow itself lives in the mobile @media block below
+   so it reliably shows on phones regardless of hover detection. */
 .upload-icon {
   color: #94a3b8;
   margin-bottom: 8px;
@@ -1576,6 +1613,8 @@ header {
   position: sticky;
   top: 20px;
 }
+/* Mobile-only checkout slot — hidden on desktop (price lives in preview card) */
+#cfgCheckoutMobile { display: none; }
 .preview-card {
   background: var(--cfg-card-bg);
   border: 1px solid var(--cfg-border);
@@ -4645,20 +4684,53 @@ header {
 }
 
 @media (max-width: 900px) {
+  /* Keep horizontal clip on <html> and free <body> so the document
+     scroller stays on <html> — this is what lets the configurator's
+     live preview stay sticky on mobile (overflow-x:hidden on body
+     turns body into a scroll container and breaks position:sticky) */
+  html { overflow-x: clip; }
+  body { overflow-x: visible; }
+
+  /* Make the license + logo upload areas clearly tappable on mobile —
+     a soft glowing blue border so customers know to upload documents here */
+  .upload-zone,
+  .lic-compact {
+    border-color: var(--cfg-active);
+    box-shadow: 0 0 0 4px rgba(0, 46, 138, 0.06), 0 4px 16px -6px rgba(0, 46, 138, 0.18);
+  }
+  .lic-compact .lic-compact-iconwrap { border-color: var(--cfg-active); color: var(--cfg-active); }
+  .upload-zone:active,
+  .lic-compact:active {
+    box-shadow: 0 0 0 5px rgba(0, 46, 138, 0.12), 0 6px 20px -6px rgba(0, 46, 138, 0.28);
+  }
+
   header { top: 10px; padding: 0 10px; }
   .header-inner { height: 58px; padding: 0 16px; }
   .main-nav { display: none; }
   .nav-logo img { height: 34px; }
 
-  .hero { min-height: auto; padding-top: 78px; padding-bottom: 40px; }
+  /* Mobile hero — disc becomes a faded backdrop BEHIND the text,
+     so H1 + description + CTAs lead and the hero stays compact */
+  .hero { min-height: auto; padding-top: 104px; padding-bottom: 56px; }
   .hero-wrap {
-    grid-template-columns: 1fr;
-    gap: 30px;
-    padding: 16px 20px 30px;
+    display: block;
+    position: relative;
+    padding: 4px 22px 18px;
     text-align: center;
   }
-  .hero-visual { height: 320px; order: 2; }
-  .hero-text { order: 1; }
+  .hero-text { position: relative; z-index: 5; }
+  .hero-visual {
+    position: absolute;
+    left: 50%; top: 54%;
+    transform: translate(-50%, -50%);
+    width: 350px; height: 350px;
+    margin: 0;
+    z-index: 1;
+    opacity: 0.34;
+    pointer-events: none;
+    animation: heroDiscFade 1.4s 0.3s ease both;
+  }
+  @keyframes heroDiscFade { from { opacity: 0; } to { opacity: 0.34; } }
   .line-1, .line-2, .line-3 { font-size: 36px; }
   .line-2 em { font-size: 40px; }
   .text-eyebrow { justify-content: center; }
@@ -4700,27 +4772,84 @@ header {
   .brand-item { height: 26px; }
   .brand-item img { max-width: 95px; }
 
-  /* Configurator mobile */
-  .configurator { padding: 60px 16px 70px; }
+  /* Configurator mobile — LIVE PREVIEW ON TOP (sticky), controls below */
+  .configurator { padding: 60px 16px 70px; overflow: visible; }
+  .cfg-bg-grid, .cfg-bg-glow { display: none; }   /* let sticky work, avoid clip */
   .cfg-heading { margin-bottom: 36px; }
   .cfg-title { font-size: 32px; letter-spacing: -1px; }
   .cfg-title em { font-size: 36px; }
   .cfg-sub { font-size: 14px; }
   .cfg-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
   }
-  .cfg-right { position: static; }
+  .cfg-left { order: 1; }
+  .cfg-right {
+    order: -1;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 8px;
+    z-index: 30;
+  }
+  /* Compact sticky preview: stamp + size + price/checkout stay in view */
+  .cfg-right .preview-card {
+    padding: 14px 16px 16px;
+    border-color: rgba(0, 46, 138, 0.16);
+    box-shadow: 0 14px 34px -10px rgba(0, 15, 60, 0.28), 0 2px 0 rgba(255,255,255,0.6) inset;
+  }
+  .cfg-right .info-box,
+  .cfg-right #logoInfo,
+  .cfg-right .preview-note { display: none; }
+  /* Keep the important trade-license note visible on mobile */
+  .cfg-right .info-box.info-box-keep {
+    display: flex; margin: 8px 0 2px; padding: 10px 12px;
+  }
+  .cfg-right .info-box.info-box-keep p { font-size: 12px; line-height: 1.45; }
+  .cfg-right .pv-header {
+    flex-direction: row; align-items: center; justify-content: space-between;
+    margin-bottom: 10px; gap: 10px;
+  }
+  .cfg-right .pv-title { font-size: 15px; display: inline-flex; align-items: center; gap: 7px; }
+  .cfg-right .pv-title::before {
+    content: ''; width: 7px; height: 7px; border-radius: 50%;
+    background: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.18);
+    animation: cfgLivePulse 1.8s ease-in-out infinite;
+  }
+  @keyframes cfgLivePulse { 0%,100%{ box-shadow: 0 0 0 3px rgba(16,185,129,0.18);} 50%{ box-shadow: 0 0 0 6px rgba(16,185,129,0.05);} }
+  .cfg-right .size-pills { width: auto; }
+  .cfg-right .size-pill { flex: 0 0 auto; }
+  .cfg-right .canvas-wrap { min-height: 0; padding: 14px 10px; margin-bottom: 4px; }
+  .cfg-right #stampSvg { max-width: 230px; }
+  .cfg-right .trust { display: none; }   /* keep the pinned preview compact */
+
+  /* Order summary + checkout — relocated BELOW the form on mobile (via JS) */
+  #cfgCheckoutMobile {
+    display: block;
+    order: 2;
+    background: var(--cfg-card-bg);
+    border: 1px solid var(--cfg-border);
+    border-radius: var(--cfg-radius);
+    padding: 20px 18px;
+    box-shadow: 0 2px 14px rgba(0, 15, 60, 0.04);
+  }
+  #cfgCheckoutMobile:empty { display: none; }
+  #cfgCheckoutMobile .price-block { border-top: none; padding-top: 0; }
   .cfg-card { padding: 18px 18px; }
   .cfg-two-col { gap: 18px; }
-  .preview-card { padding: 20px; }
-  .pv-header { margin-bottom: 14px; }
-  .pv-title { font-size: 18px; }
 
-  /* Floating WhatsApp on mobile */
-  .wa-float { bottom: 16px; right: 16px; gap: 8px; }
-  .wa-float-btn { width: 56px; height: 56px; }
-  .wa-float-icon { width: 28px; height: 28px; }
+  /* Floating WhatsApp on mobile — bottom-right like desktop, but small
+     and calm so it never crowds the page */
+  .wa-float { bottom: 14px; right: 14px; gap: 8px; }
+  .wa-float-btn { width: 46px; height: 46px; }
+  .wa-float-icon { width: 23px; height: 23px; }
+  .wa-float-ring, .wa-float-ring-2 { display: none; }   /* drop the wide pulsing halo */
+  .wa-float-btn { box-shadow: 0 6px 16px rgba(37, 211, 102, 0.38); }
+  .wa-float-badge {
+    min-width: 16px; height: 16px; font-size: 9px; border-width: 2px;
+    top: -1px; right: -1px; animation: none;
+  }
   /* Hide chat bubble on small screens to save space */
   .wa-float-bubble { display: none; }
 

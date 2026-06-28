@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout · MY STAMP — Review &amp; Confirm Your Order</title>
+  <meta name="description" content="Review your custom stamp design, choose delivery, and confirm your order. Same-day options across Dubai with MyStamp.ae.">
+  <meta name="robots" content="noindex, follow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="checkout.css">
+</head>
+<body class="checkout-body">
+
+  <!-- ═══════════════════════════════════════
+       HEADER
+  ═══════════════════════════════════════ -->
+  <header>
+    <div class="header-inner">
+      <a href="index.html" class="nav-logo">
+        <img id="logoImg" src="https://mystamp.ae/wp-content/uploads/2025/02/mystamp_logo_fx.svg" alt="My Stamp">
+        <span class="logo-fallback" id="logoFallback">MY STAMP</span>
+      </a>
+      <nav class="main-nav">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="index.html#configurator" class="nav-link">Company Stamps</a>
+        <a href="signature.html" class="nav-link">Signature</a>
+        <a href="contact-us.html" class="nav-link">Contact</a>
+      </nav>
+      <div class="header-actions">
+        <a href="https://wa.me/971544032018" class="icon-btn whatsapp-icon" target="_blank" rel="noopener" aria-label="WhatsApp">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.557 4.118 1.528 5.845L.057 23.484l5.797-1.52A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.903 0-3.68-.516-5.197-1.413l-.372-.222-3.441.901.921-3.36-.242-.386A9.937 9.937 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+          </svg>
+        </a>
+        <a href="index.html#configurator" class="icon-btn cart-icon" aria-label="Shopping cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 001.98 1.61h9.72a2 2 0 001.98-1.61L23 6H6"/>
+          </svg>
+          <span class="cart-badge" id="cartBadge">1</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════
+       CHECKOUT MAIN
+  ═══════════════════════════════════════ -->
+  <main class="co-main">
+
+    <!-- Atmospheric background -->
+    <div class="co-atmos" aria-hidden="true">
+      <div class="co-atmos-glow co-atmos-glow-1"></div>
+      <div class="co-atmos-glow co-atmos-glow-2"></div>
+      <div class="co-atmos-grid"></div>
+    </div>
+
+    <div class="co-wrap">
+
+      <!-- ─── Progress steps ─── -->
+      <div class="co-steps" aria-label="Checkout progress">
+        <div class="co-step done">
+          <span class="co-step-dot"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <span class="co-step-label">Design</span>
+        </div>
+        <span class="co-step-line done"></span>
+        <div class="co-step active">
+          <span class="co-step-dot">2</span>
+          <span class="co-step-label">Review &amp; Deliver</span>
+        </div>
+        <span class="co-step-line"></span>
+        <div class="co-step">
+          <span class="co-step-dot">3</span>
+          <span class="co-step-label">Confirm</span>
+        </div>
+      </div>
+
+      <div class="co-grid">
+
+        <!-- ═════ LEFT — Order + Form ═════ -->
+        <div class="co-left">
+
+          <!-- ─── Your Design (preview) ─── -->
+          <section class="co-card co-design reveal" id="designCard">
+            <div class="co-card-head">
+              <div class="co-eyebrow"><span class="co-eyebrow-bar"></span>Your design</div>
+              <a href="index.html#configurator" class="co-edit-link" id="editDesignLink">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit design
+              </a>
+            </div>
+
+            <div class="co-design-body">
+              <div class="co-preview-stage">
+                <div class="co-preview-halo"></div>
+                <div class="co-preview-mount" id="previewMount">
+                  <!-- stamp SVG injected here -->
+                </div>
+                <div class="co-preview-badge">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z"/></svg>
+                  Live preview
+                </div>
+              </div>
+
+              <div class="co-design-specs">
+                <h2 class="co-design-title" id="specCompany">Your Company Stamp</h2>
+                <p class="co-design-note">Final artwork is reviewed and refined before production.</p>
+                <ul class="co-spec-list" id="specList">
+                  <!-- spec rows injected -->
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <!-- ─── Delivery options ─── -->
+          <section class="co-card reveal" id="deliveryCard" style="--d:1;">
+            <div class="co-card-head">
+              <div class="co-eyebrow"><span class="co-eyebrow-bar"></span>How would you like it?</div>
+            </div>
+
+            <div class="co-deliv-list" id="delivList" role="radiogroup" aria-label="Delivery method">
+
+              <!-- Next-day -->
+              <label class="co-deliv" data-method="nextday">
+                <input type="radio" name="delivery" value="nextday" checked>
+                <span class="co-deliv-card">
+                  <span class="co-deliv-ic">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                  </span>
+                  <span class="co-deliv-main">
+                    <span class="co-deliv-name">Next-day delivery</span>
+                    <span class="co-deliv-desc">Delivered to your door before 6:00 PM tomorrow.</span>
+                    <span class="co-deliv-eta" id="etaNextday"></span>
+                  </span>
+                  <span class="co-deliv-price"><em class="co-deliv-was" data-base="19"></em><span class="co-deliv-amt" data-price="19">AED 19</span></span>
+                  <span class="co-deliv-check" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </span>
+              </label>
+
+              <!-- 4-hour Careem -->
+              <label class="co-deliv" data-method="express">
+                <input type="radio" name="delivery" value="express">
+                <span class="co-deliv-card">
+                  <span class="co-deliv-ic co-deliv-ic-express">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  </span>
+                  <span class="co-deliv-main">
+                    <span class="co-deliv-name">4-hour express <span class="co-deliv-tag">Careem Box</span></span>
+                    <span class="co-deliv-desc">Rush courier via Careem Box. Available 9 AM–8 PM.</span>
+                    <span class="co-deliv-eta" id="etaExpress"></span>
+                  </span>
+                  <span class="co-deliv-price"><em class="co-deliv-was" data-base="89"></em><span class="co-deliv-amt" data-price="89">AED 89</span></span>
+                  <span class="co-deliv-check" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </span>
+              </label>
+
+              <!-- Pickup -->
+              <label class="co-deliv" data-method="pickup">
+                <input type="radio" name="delivery" value="pickup">
+                <span class="co-deliv-card">
+                  <span class="co-deliv-ic">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-5h16l1 5"/><path d="M4 9v11a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9"/><path d="M9 21V13h6v8"/></svg>
+                  </span>
+                  <span class="co-deliv-main">
+                    <span class="co-deliv-name">Pickup from Deira, Dubai</span>
+                    <span class="co-deliv-desc">Ready in 3 hours. We'll WhatsApp you the moment it's ready to collect.</span>
+                    <span class="co-deliv-eta" id="etaPickup"></span>
+                  </span>
+                  <span class="co-deliv-price"><span class="co-deliv-amt co-deliv-free" data-price="0">Free</span></span>
+                  <span class="co-deliv-check" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                </span>
+              </label>
+
+            </div>
+
+            <!-- Pickup address callout -->
+            <div class="co-pickup-info" id="pickupInfo" hidden>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span><strong>Pickup — Deira, Dubai.</strong> Exact location &amp; pickup time sent to your WhatsApp after you confirm.</span>
+            </div>
+          </section>
+
+          <!-- ─── Delivery address form ─── -->
+          <section class="co-card reveal" id="addressCard" style="--d:2;">
+            <div class="co-card-head">
+              <div class="co-eyebrow"><span class="co-eyebrow-bar"></span><span id="addrTitle">Delivery details</span></div>
+            </div>
+
+            <div class="co-note">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <span>Delivery isn't available in some remote areas. Not sure if we cover yours? <a href="https://wa.me/971544032018" target="_blank" rel="noopener">Message us</a>.</span>
+            </div>
+
+            <div class="co-fields">
+              <div class="co-field">
+                <label for="coName">Full name</label>
+                <input type="text" id="coName" autocomplete="name" placeholder="e.g. Ahmed Al Mansoori">
+              </div>
+              <div class="co-field co-field-addr">
+                <label for="coAddress">Address</label>
+                <input type="text" id="coAddress" autocomplete="street-address" placeholder="Building, street, area">
+              </div>
+              <div class="co-field">
+                <label for="coEmirate">Emirate</label>
+                <div class="co-select-wrap">
+                  <select id="coEmirate">
+                    <option value="" disabled selected>Select an emirate</option>
+                    <option>Dubai</option><option>Abu Dhabi</option><option>Sharjah</option>
+                    <option>Ajman</option><option>Ras Al Khaimah</option><option>Fujairah</option>
+                    <option>Umm Al Quwain</option>
+                  </select>
+                  <svg class="co-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+              </div>
+              <div class="co-field">
+                <label for="coPhone">Phone number <span class="co-field-hint">+971</span></label>
+                <input type="tel" id="coPhone" autocomplete="tel" placeholder="+971 5X XXX XXXX">
+              </div>
+              <div class="co-field co-field-addr">
+                <label for="coEmail">Email <span class="co-field-opt">optional</span></label>
+                <input type="email" id="coEmail" autocomplete="email" placeholder="your@email.com">
+              </div>
+            </div>
+
+            <!-- Emirates ID upload -->
+            <div class="co-id-block">
+              <div class="co-id-head">
+                <span class="co-id-title">Emirates ID</span>
+                <span class="co-id-req">Required by UAE authorities</span>
+              </div>
+              <p class="co-id-sub">Upload a clear photo of the front &amp; back. Used only to verify your stamp order.</p>
+              <label class="co-id-drop" id="idDrop" tabindex="0">
+                <input type="file" id="idInput" accept="image/*,application/pdf" multiple hidden>
+                <span class="co-id-drop-ic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </span>
+                <span class="co-id-drop-title">Upload Emirates ID</span>
+                <span class="co-id-drop-meta" id="idMeta">Drag &amp; drop or browse · max 25 MB</span>
+              </label>
+              <div class="co-id-files" id="idFiles"></div>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- ═════ RIGHT — Sticky summary ═════ -->
+        <aside class="co-right">
+          <div class="co-summary-sticky">
+
+            <!-- Promo banner -->
+            <div class="co-promo" id="promoBanner">
+              <div class="co-promo-glint"></div>
+              <div class="co-promo-ic" id="promoIc">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+              </div>
+              <div class="co-promo-text" id="promoText">
+                <strong>Add 1 more stamp</strong>
+                <span>and delivery is on us — free.</span>
+              </div>
+              <button class="co-promo-add" id="promoAdd" type="button">Add</button>
+            </div>
+
+            <div class="co-summary-card">
+              <div class="co-summary-head">
+                <span class="co-summary-title">Order summary</span>
+                <span class="co-summary-secure">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  Secure
+                </span>
+              </div>
+
+              <!-- Line item -->
+              <div class="co-line-item">
+                <div class="co-line-thumb" id="lineThumb"></div>
+                <div class="co-line-info">
+                  <span class="co-line-name" id="lineName">Company Stamp</span>
+                  <span class="co-line-meta" id="lineMeta">Round · 38MM</span>
+                </div>
+                <div class="co-qty">
+                  <button class="co-qty-btn" id="qtyMinus" aria-label="Decrease quantity">−</button>
+                  <span class="co-qty-val" id="qtyVal">1</span>
+                  <button class="co-qty-btn" id="qtyPlus" aria-label="Increase quantity">+</button>
+                </div>
+              </div>
+
+              <!-- Free stamp row (appears at qty 3+) -->
+              <div class="co-free-row" id="freeStampRow" hidden>
+                <span class="co-free-gift">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/></svg>
+                  4th stamp — free gift
+                </span>
+                <span class="co-free-price">AED 0</span>
+              </div>
+
+              <div class="co-summary-divider"></div>
+
+              <!-- Totals -->
+              <div class="co-totals">
+                <div class="co-total-row">
+                  <span>Subtotal</span>
+                  <span id="sumSubtotal">AED 129</span>
+                </div>
+                <div class="co-total-row co-total-discount" id="discountRow" hidden>
+                  <span>Bundle saving</span>
+                  <span id="sumDiscount">− AED 0</span>
+                </div>
+                <div class="co-total-row">
+                  <span id="sumDeliveryLabel">Delivery</span>
+                  <span id="sumDelivery">AED 19</span>
+                </div>
+                <div class="co-total-row co-total-vat">
+                  <span>VAT included (5%)</span>
+                  <span id="sumVat">AED 7</span>
+                </div>
+              </div>
+
+              <div class="co-summary-divider"></div>
+
+              <div class="co-grand">
+                <div class="co-grand-lbl">
+                  <span>Total</span>
+                  <span class="co-grand-sub">incl. VAT &amp; delivery</span>
+                </div>
+                <div class="co-grand-val">
+                  <em>AED</em><span id="sumGrand">155</span>
+                </div>
+              </div>
+
+              <!-- Savings pill -->
+              <div class="co-saved" id="savedPill" hidden>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                <span id="savedText">You're saving AED 0</span>
+              </div>
+
+              <!-- Terms -->
+              <label class="co-terms">
+                <input type="checkbox" id="coTerms">
+                <span class="co-terms-box" aria-hidden="true"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                <span class="co-terms-text">I confirm my details are accurate and I agree to the <a href="terms-conditions.html" target="_blank">Terms</a> &amp; <a href="privacy-policy.html" target="_blank">Privacy Policy</a>.</span>
+              </label>
+
+              <!-- Payment method chooser -->
+              <div class="co-paymethod" id="payMethod">
+                <button type="button" class="co-paymethod-opt active" data-pay="card">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                  Pay by card
+                </button>
+                <button type="button" class="co-paymethod-opt" data-pay="whatsapp">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.557 4.118 1.528 5.845L.057 23.484l5.797-1.52A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+                  Order on WhatsApp
+                </button>
+              </div>
+
+              <!-- Confirm -->
+              <button class="co-confirm" id="confirmBtn">
+                <span class="co-confirm-shine"></span>
+                <span class="co-confirm-content">
+                  <svg class="co-confirm-wa" id="confirmIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                  <span class="co-confirm-text" id="confirmText">Pay securely</span>
+                  <span class="co-confirm-amt" id="confirmAmt">AED 155</span>
+                </span>
+              </button>
+
+              <div class="co-pay-trust">
+                <span id="payTrustText">Secure card payment via Telr</span>
+                <div class="co-pay-icons">
+                  <span class="co-pay"><svg viewBox="0 0 36 24"><rect width="36" height="24" rx="3" fill="#fff"/><text x="18" y="16" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="9" font-weight="900" fill="#1a1f71">VISA</text></svg></span>
+                  <span class="co-pay"><svg viewBox="0 0 36 24"><rect width="36" height="24" rx="3" fill="#fff"/><circle cx="14" cy="12" r="6" fill="#eb001b"/><circle cx="22" cy="12" r="6" fill="#f79e1b" opacity="0.85"/></svg></span>
+                  <span class="co-pay co-pay-text">Cash</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reassurance points -->
+            <div class="co-reassure">
+              <div class="co-reassure-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span>UAE-approved stamps</span>
+              </div>
+              <div class="co-reassure-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <span>Real human checks your design</span>
+              </div>
+            </div>
+
+          </div>
+        </aside>
+
+      </div>
+    </div>
+
+    <!-- ─── Mobile sticky confirm bar ─── -->
+    <div class="co-mobilebar" id="mobileBar">
+      <div class="co-mobilebar-info">
+        <span class="co-mobilebar-lbl">Total</span>
+        <span class="co-mobilebar-val"><em>AED</em><span id="mobileTotal">155</span></span>
+      </div>
+      <button class="co-mobilebar-btn" id="mobileConfirm">Confirm order</button>
+    </div>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════
+       SUCCESS OVERLAY
+  ═══════════════════════════════════════ -->
+  <div class="co-success" id="successOverlay" hidden>
+    <div class="co-success-card">
+      <div class="co-success-burst" aria-hidden="true"></div>
+      <div class="co-success-check">
+        <svg viewBox="0 0 52 52"><circle class="co-success-circle" cx="26" cy="26" r="24" fill="none"/><path class="co-success-tick" fill="none" d="M14 27l8 8 16-16"/></svg>
+      </div>
+      <h2 class="co-success-title">Order confirmed</h2>
+      <p class="co-success-sub" id="successSub">We've got your design. Our team will reach out on WhatsApp shortly to finalize everything.</p>
+      <div class="co-success-order">
+        <span>Order reference</span>
+        <strong id="successRef">MS-000000</strong>
+      </div>
+      <a class="co-success-wa" id="successWa" href="https://wa.me/971544032018" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.557 4.118 1.528 5.845L.057 23.484l5.797-1.52A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+        Continue on WhatsApp
+      </a>
+      <a class="co-success-home" href="index.html">Back to home</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="supabase-orders.js"></script>
+  <script src="checkout.js"></script>
+</body>
+</html>

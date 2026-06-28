@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Successful · MY STAMP</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="checkout.css">
+</head>
+<body class="checkout-body">
+  <header>
+    <div class="header-inner">
+      <a href="index.html" class="nav-logo">
+        <img id="logoImg" src="https://mystamp.ae/wp-content/uploads/2025/02/mystamp_logo_fx.svg" alt="My Stamp">
+        <span class="logo-fallback" id="logoFallback">MY STAMP</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="co-main">
+    <div class="co-atmos" aria-hidden="true">
+      <div class="co-atmos-glow co-atmos-glow-1"></div>
+      <div class="co-atmos-glow co-atmos-glow-2"></div>
+    </div>
+
+    <div style="position:relative;z-index:1;max-width:480px;margin:40px auto;">
+      <div class="co-success-card" style="animation:coSuccessIn 0.6s cubic-bezier(0.16,1,0.3,1) both;">
+        <div class="co-success-burst" aria-hidden="true"></div>
+        <div class="co-success-check">
+          <svg viewBox="0 0 52 52"><circle class="co-success-circle" cx="26" cy="26" r="24" fill="none"/><path class="co-success-tick" fill="none" d="M14 27l8 8 16-16"/></svg>
+        </div>
+        <h2 class="co-success-title">Payment received</h2>
+        <p class="co-success-sub">Thank you! Your payment was successful. Our team will start on your stamp and reach out on WhatsApp to finalize the details.</p>
+        <div class="co-success-order">
+          <span>Order reference</span>
+          <strong id="successRef">—</strong>
+        </div>
+        <a class="co-success-wa" id="successWa" href="https://wa.me/971544032018" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.557 4.118 1.528 5.845L.057 23.484l5.797-1.52A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+          Continue on WhatsApp
+        </a>
+        <a class="co-success-home" href="index.html">Back to home</a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var ref = params.get('ref') || sessionStorage.getItem('mystamp_order_ref') || '';
+      if (ref) document.getElementById('successRef').textContent = ref;
+      // Clear the saved cart so a refresh doesn't re-show stale data
+      try { sessionStorage.removeItem('mystamp_order'); } catch (e) {}
+      var logoImg = document.getElementById('logoImg'), fb = document.getElementById('logoFallback');
+      if (logoImg) logoImg.addEventListener('error', function () { this.style.display='none'; if (fb) fb.style.display='flex'; });
+    })();
+  </script>
+</body>
+</html>
