@@ -62,11 +62,19 @@ export default async function handler(req, res) {
     var statusText = (data && data.order && data.order.status && data.order.status.text) || '';
     var isPaid = String(statusCode) === '3' || /paid|authorised|authorized/i.test(statusText);
 
+    // Debug logging (visible in Vercel → Logs)
+    console.log('[telr-webhook] ref=' + cartId +
+      ' telrStatusCode=' + JSON.stringify(statusCode) +
+      ' telrStatusText=' + JSON.stringify(statusText) +
+      ' isPaid=' + isPaid +
+      ' telrError=' + JSON.stringify(data && data.error || null));
+
     if (!isPaid) {
       // Not paid (declined / pending / cancelled) — leave the order as-is.
       return res.status(200).json({
         ok: true, paid: false, ref: cartId,
-        status: statusText || 'not paid'
+        status: statusText || 'not paid',
+        telrError: (data && data.error) || null
       });
     }
 
@@ -88,10 +96,12 @@ export default async function handler(req, res) {
 
     if (!sbRes.ok) {
       const t = await sbRes.text();
+      console.log('[telr-webhook] SUPABASE FAIL status=' + sbRes.status + ' body=' + t.slice(0, 300));
       return res.status(500).json({ ok: false, error: 'DB update failed', detail: t.slice(0, 200) });
     }
 
     const updated = await sbRes.json();
+    console.log('[telr-webhook] PAID ref=' + cartId + ' rowsUpdated=' + (Array.isArray(updated) ? updated.length : 0));
     return res.status(200).json({
       ok: true, paid: true, ref: cartId,
       updated: Array.isArray(updated) ? updated.length : 0
