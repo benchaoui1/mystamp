@@ -126,6 +126,46 @@ header {
 .nav-arrow { opacity: 0.7; transition: transform 0.2s; }
 .nav-link:hover .nav-arrow { transform: rotate(180deg); }
 
+/* ── Products dropdown ── */
+.nav-dropdown { position: relative; }
+.nav-dropdown-trigger { cursor: pointer; }
+.nav-dropdown-menu {
+  position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%) translateY(8px);
+  min-width: 268px; padding: 8px;
+  background: #fff; border: 1px solid rgba(0,15,60,0.08); border-radius: 16px;
+  box-shadow: 0 24px 50px -16px rgba(0,15,60,0.25);
+  opacity: 0; visibility: hidden; transition: all 0.22s cubic-bezier(0.16,1,0.3,1);
+  z-index: 200;
+}
+.nav-dropdown-menu::before {
+  content: ''; position: absolute; top: -14px; left: 0; right: 0; height: 14px;
+}
+.nav-dropdown:hover .nav-dropdown-menu {
+  opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0);
+}
+.nav-dropdown:hover .nav-arrow { transform: rotate(180deg); }
+.nav-dropdown-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 11px; text-decoration: none;
+  color: var(--cfg-text, #0b1a4a); transition: background 0.18s;
+}
+.nav-dropdown-item:hover { background: rgba(0,46,138,0.06); }
+.nav-dd-ic {
+  flex-shrink: 0; width: 38px; height: 38px; border-radius: 10px;
+  display: grid; place-items: center;
+  background: rgba(0,46,138,0.08); color: var(--bg-rich);
+}
+.nav-dd-text { display: flex; flex-direction: column; line-height: 1.25; }
+.nav-dd-text strong { font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 14px; }
+.nav-dd-text small { font-size: 11.5px; color: #8a93a6; }
+.nav-dropdown-divider { height: 1px; background: rgba(0,15,60,0.07); margin: 7px 10px; }
+.nav-dd-sub {
+  font-family: 'Manrope', sans-serif; font-weight: 600; font-size: 13.5px;
+  color: #4b5563; padding: 9px 12px;
+}
+.nav-dd-sub:hover { color: var(--bg-rich); }
+.nav-dd-shape { display: inline-block; width: 20px; text-align: center; color: var(--bg-rich); font-size: 12px; }
+
 .header-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
 .icon-btn {
   position: relative; width: 38px; height: 38px;

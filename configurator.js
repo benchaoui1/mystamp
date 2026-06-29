@@ -915,9 +915,31 @@
   }
 
   /* ── Init ──────────────────────────────────────── */
+  function selectShapeFromUrl() {
+    // Allow deep links like  index.html?shape=oval#configurator
+    // or  index.html#configurator=square  to preselect a stamp shape.
+    var shape = null;
+    try {
+      var params = new URLSearchParams(window.location.search);
+      shape = params.get('shape');
+      if (!shape && window.location.hash) {
+        var m = window.location.hash.match(/(?:shape[=-]|configurator[=-])(circle|oval|rect|square)/i);
+        if (m) shape = m[1];
+      }
+    } catch (e) {}
+    if (!shape) return;
+    shape = shape.toLowerCase();
+    var map = { round: 'circle', circle: 'circle', oval: 'oval', rectangle: 'rect', rect: 'rect', square: 'square' };
+    var target = map[shape];
+    if (!target) return;
+    var btn = document.querySelector('.shape-card[data-shape="' + target + '"]');
+    if (btn) pickShape(target, btn);
+  }
+
   function init() {
     bindEvents();
     restoreState();
+    selectShapeFromUrl();
     calcPrice();
     render();
   }

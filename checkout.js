@@ -13,7 +13,7 @@
   var WA_NUMBER    = '971544032018';
   var DELIVERY = { nextday: 19, express: 89, pickup: 0 };
 
-  var SHAPE_LABEL = { circle: 'Round', oval: 'Oval', rect: 'Rectangle', square: 'Square' };
+  var SHAPE_LABEL = { circle: 'Round', oval: 'Oval', rect: 'Rectangle', square: 'Square', signature: 'Signature' };
 
   /* ── State ───────────────────────────────────── */
   var order = loadOrder();
@@ -73,6 +73,13 @@
 
   /* ── Render the stamp preview ────────────────── */
   function renderPreview() {
+    // Signature stamp — show the captured signature image
+    if (order.type === 'signature' && order.signatureData) {
+      var sigImg = '<img src="' + order.signatureData + '" alt="Your signature" style="width:100%;height:100%;object-fit:contain;background:#fff;">';
+      els.previewMount.innerHTML = sigImg;
+      els.lineThumb.innerHTML = sigImg;
+      return;
+    }
     var svg = order.previewSvg;
     if (svg && /<svg/i.test(svg)) {
       els.previewMount.innerHTML = svg;
@@ -512,7 +519,13 @@
 
       // 4) The stamp DESIGN itself — convert the SVG preview to a PNG so you
       //    receive exactly what the customer designed, as an image.
-      if (order.previewSvg && window.mystampOrders.svgToPngDataUrl) {
+      if (order.type === 'signature' && order.signatureData) {
+        // Signature stamp — upload the captured signature image
+        var sigRef = await window.mystampOrders.uploadDataUrl(
+          ref, order.signatureData, 'signature.png', 'image/png'
+        );
+        if (sigRef) { sigRef.kind = 'signature'; fileRefs.push(sigRef); }
+      } else if (order.previewSvg && window.mystampOrders.svgToPngDataUrl) {
         var designPng = await window.mystampOrders.svgToPngDataUrl(order.previewSvg, 600);
         if (designPng) {
           var designRef = await window.mystampOrders.uploadDataUrl(
@@ -688,6 +701,15 @@
   update();
   refreshConfirmButton();
   initReveal();
+
+  /* For the signature flow the customer already uploaded their ID/passport
+     on the signature page — don't ask for it again here. */
+  (function () {
+    var idBlock = $('idBlock');
+    if (idBlock && order.type === 'signature' && order.licenseData) {
+      idBlock.style.display = 'none';
+    }
+  })();
 
   /* Logo fallback (shared header behavior) */
   var logoImg = $('logoImg'), logoFallback = $('logoFallback');

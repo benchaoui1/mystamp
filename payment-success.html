@@ -53,6 +53,15 @@
       var params = new URLSearchParams(window.location.search);
       var ref = params.get('ref') || sessionStorage.getItem('mystamp_order_ref') || '';
       if (ref) document.getElementById('successRef').textContent = ref;
+
+      // Confirm the payment server-side and mark the order PAID.
+      // This is a safety net in case Telr's own callback hasn't run yet.
+      if (ref) {
+        try {
+          fetch('/api/telr-webhook?ref=' + encodeURIComponent(ref)).catch(function () {});
+        } catch (e) {}
+      }
+
       // Clear the saved cart so a refresh doesn't re-show stale data
       try { sessionStorage.removeItem('mystamp_order'); } catch (e) {}
       var logoImg = document.getElementById('logoImg'), fb = document.getElementById('logoFallback');

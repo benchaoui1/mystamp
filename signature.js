@@ -362,6 +362,7 @@
   var fileSize = document.getElementById('sigFileSize');
   var fileRemove = document.getElementById('sigFileRemove');
   var uploaded = false;
+  var sigIdData = null, sigIdName = null, sigIdType = null;
   var MAX = 12 * 1024 * 1024;
   var OK = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'application/pdf'];
 
@@ -374,6 +375,11 @@
     if (file.size > MAX) { flashDrop('File is over 12 MB — please compress it'); return; }
     fileName.textContent = file.name;
     fileSize.innerHTML = fmt(file.size) + ' <span class="sig-file-ok"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Ready</span>';
+    // Keep the full file (base64) so checkout can upload it to Supabase
+    sigIdName = file.name; sigIdType = file.type || '';
+    var rAll = new FileReader();
+    rAll.onload = function (ev) { sigIdData = ev.target.result; };
+    rAll.readAsDataURL(file);
     if (file.type.indexOf('image') === 0) {
       var r = new FileReader();
       r.onload = function (ev) { fileThumb.innerHTML = '<img src="' + ev.target.result + '" alt="ID preview">'; };
@@ -394,7 +400,7 @@
   ['dragenter', 'dragover'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('is-drag'); }); });
   ['dragleave', 'drop'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove('is-drag'); }); });
   drop.addEventListener('drop', function (e) { if (e.dataTransfer && e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]); });
-  fileRemove.addEventListener('click', function () { uploaded = false; fileInput.value = ''; fileCard.classList.remove('show'); drop.style.display = 'block'; refreshSubmit(); });
+  fileRemove.addEventListener('click', function () { uploaded = false; sigIdData = null; sigIdName = null; sigIdType = null; fileInput.value = ''; fileCard.classList.remove('show'); drop.style.display = 'block'; refreshSubmit(); });
 
   /* ════════════════════════════════════════
      SUBMIT
@@ -411,20 +417,42 @@
     var signatureData = buildFinalImage();
 
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="animation:sigSpin .7s linear infinite"><circle cx="12" cy="12" r="9" stroke-dasharray="38 60"/></svg> Verifying…';
+    submitBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="animation:sigSpin .7s linear infinite"><circle cx="12" cy="12" r="9" stroke-dasharray="38 60"/></svg> Preparing checkout…';
     if (!document.getElementById('sig-spin')) {
       var st = document.createElement('style'); st.id = 'sig-spin';
       st.textContent = '@keyframes sigSpin{to{transform:rotate(360deg)}}'; document.head.appendChild(st);
     }
-    /* In production: POST { signatureData, idFile, method: mode } to your endpoint. */
-    setTimeout(function () {
-      consoleBody.style.display = 'none';
-      successBox.classList.add('show');
-      successName.textContent = 'Signature captured';
+
+    // Build a checkout order for the signature stamp, then go to checkout.
+    // The signature image + ID travel along and get uploaded to Supabase there.
+    var order = {
+      type: 'signature',
+      shape: 'signature',
+      size: 'Signature Stamp',
+      color: '#1a1a2e',
+      company: 'Signature Stamp',
+      quantity: 1,
+      withLogo: false,
+      // The signature itself, shown as the preview + uploaded as the design
+      signatureData: signatureData,
+      previewSvg: null,
+      // ID document carried over (base64) so checkout uploads it
+      licenseData: sigIdData || null,
+      license: sigIdName || null,
+      licenseType: sigIdType || null
+    };
+
+    try {
+      sessionStorage.setItem('mystamp_order', JSON.stringify(order));
+    } catch (e) {
+      // If too large for sessionStorage, drop the heavy ID base64 but keep signature
       try {
-        sessionStorage.setItem('mystamp_signature', signatureData);
-      } catch (e) {}
-    }, 1300);
+        var slim = Object.assign({}, order); slim.licenseData = null; slim._filesDropped = true;
+        sessionStorage.setItem('mystamp_order', JSON.stringify(slim));
+      } catch (e2) {}
+    }
+
+    setTimeout(function () { window.location.href = 'checkout.html'; }, 700);
   });
 
   /* init */
