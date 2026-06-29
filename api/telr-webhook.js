@@ -57,10 +57,14 @@ export default async function handler(req, res) {
     const data = await telrRes.json();
 
     // Telr "check" returns order.status.code / order.status.text
-    // code 3 = Paid/Authorised (the success state for a Sale)
+    //   code 1 = Pending, 2 = Authorised (held), 3 = Paid (captured)
+    //   negative = cancelled / declined / expired
+    // We treat 2 (Authorised) and 3 (Paid) as a successful payment.
     var statusCode = data && data.order && data.order.status && data.order.status.code;
     var statusText = (data && data.order && data.order.status && data.order.status.text) || '';
-    var isPaid = String(statusCode) === '3' || /paid|authorised|authorized/i.test(statusText);
+    var codeNum = parseInt(statusCode, 10);
+    var isPaid = codeNum === 2 || codeNum === 3 ||
+                 /paid|authoris|authoriz/i.test(statusText);
 
     // Debug logging (visible in Vercel → Logs)
     console.log('[telr-webhook] ref=' + cartId +
