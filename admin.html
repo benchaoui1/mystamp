@@ -9,7 +9,7 @@
 <link rel="preload" href="FONTS/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="FONTS/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="fonts.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <style>
   :root{
     --bg:#f2f4fa; --card:#ffffff; --border:#e7ebf3; --text:#0b1830; --mute:#6b7590; --mute-lt:#98a2b8;
@@ -302,8 +302,8 @@
         <div id="analyticsAnchor"></div>
         <div class="charts-grid">
           <div class="chart-card">
-            <h3>Orders — last 14 days</h3>
-            <div class="chart-sub">Daily order count, all statuses</div>
+            <h3>Orders &amp; revenue — last 14 days</h3>
+            <div class="chart-sub">Daily order count (bars) and paid revenue (line)</div>
             <div class="chart-wrap"><canvas id="ordersChart"></canvas></div>
           </div>
           <div class="chart-card">
@@ -346,12 +346,12 @@
   function unlock() {
     var k = document.getElementById('keyInput').value.trim();
     if (!k) return;
-    try { sessionStorage.setItem(KEY_STORAGE, k); } catch (e) {}
+    try { localStorage.setItem(KEY_STORAGE, k); } catch (e) {}
     loadOrders();
   }
 
   function getKey() {
-    try { return sessionStorage.getItem(KEY_STORAGE) || ''; } catch (e) { return ''; }
+    try { return localStorage.getItem(KEY_STORAGE) || ''; } catch (e) { return ''; }
   }
 
   function showToast(msg) {
@@ -389,7 +389,7 @@
       .then(function (res) {
         if (!res.ok || !res.body || !res.body.ok) {
           if (res.body && res.body.error === 'Unauthorized.') {
-            try { sessionStorage.removeItem(KEY_STORAGE); } catch (e) {}
+            try { localStorage.removeItem(KEY_STORAGE); } catch (e) {}
             document.getElementById('shell').style.display = 'none';
             document.getElementById('gate').style.display = 'block';
             document.getElementById('gateErr').textContent = 'Wrong password — try again.';
@@ -425,31 +425,51 @@
   }
 
   function renderCharts() {
-    if (typeof Chart === 'undefined') return;
+    if (typeof Chart === 'undefined') {
+      // CDN didn't load (offline / blocked) — show a clear message instead
+      // of silently leaving a blank box.
+      ['ordersChart', 'statusChart'].forEach(function (id) {
+        var c = document.getElementById(id);
+        if (c && c.parentNode) c.parentNode.innerHTML = '<div class="muted" style="padding:40px 10px;text-align:center;font-size:12.5px;">Charts library did not load — check your connection and refresh.</div>';
+      });
+      return;
+    }
 
-    // ── Orders per day, last 14 days ──
+    // ── Orders + revenue per day, last 14 days ──
     var days = [];
     var counts = [];
+    var revenues = [];
     for (var i = 13; i >= 0; i--) {
       var d = new Date();
       d.setDate(d.getDate() - i);
       var key = d.toISOString().slice(0, 10);
       days.push(d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }));
-      var c = allOrders.filter(function (o) {
+      var dayOrders = allOrders.filter(function (o) {
         return o.created_at && String(o.created_at).slice(0, 10) === key;
-      }).length;
-      counts.push(c);
+      });
+      counts.push(dayOrders.length);
+      var dayRevenue = dayOrders
+        .filter(function (o) { return o.status === 'paid'; })
+        .reduce(function (sum, o) { return sum + (Number(o.total_aed) || 0); }, 0);
+      revenues.push(dayRevenue);
     }
     var ctx1 = document.getElementById('ordersChart').getContext('2d');
     if (ordersChart) ordersChart.destroy();
     ordersChart = new Chart(ctx1, {
-      type: 'bar',
-      data: { labels: days, datasets: [{ data: counts, backgroundColor: '#0a47b5', borderRadius: 6, maxBarThickness: 26 }] },
+      data: {
+        labels: days,
+        datasets: [
+          { type: 'bar', label: 'Orders', data: counts, backgroundColor: '#bcd2f7', borderRadius: 6, maxBarThickness: 22, yAxisID: 'yCount', order: 2 },
+          { type: 'line', label: 'Paid revenue (AED)', data: revenues, borderColor: '#16a34a', backgroundColor: '#16a34a', tension: .35, pointRadius: 3, pointBackgroundColor: '#16a34a', borderWidth: 2.5, yAxisID: 'yRevenue', order: 1 }
+        ]
+      },
       options: {
         responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { display: true, position: 'top', align: 'end', labels: { boxWidth: 10, boxHeight: 10, font: { size: 11 }, color: '#6b7590' } } },
         scales: {
-          y: { beginAtZero: true, ticks: { precision: 0, color: '#98a2b8', font: { size: 11 } }, grid: { color: '#eef1f7' } },
+          yCount: { beginAtZero: true, position: 'left', ticks: { precision: 0, color: '#98a2b8', font: { size: 11 } }, grid: { color: '#eef1f7' }, title: { display: true, text: 'Orders', font: { size: 10 }, color: '#98a2b8' } },
+          yRevenue: { beginAtZero: true, position: 'right', ticks: { color: '#16a34a', font: { size: 11 } }, grid: { display: false }, title: { display: true, text: 'AED', font: { size: 10 }, color: '#16a34a' } },
           x: { ticks: { color: '#98a2b8', font: { size: 10 } }, grid: { display: false } }
         }
       }
@@ -595,7 +615,12 @@
   }
 
   function fullAddress(o) {
-    var parts = [o.customer_address, o.emirate, o.pobox ? 'P.O. Box ' + o.pobox : null, 'UAE'].filter(Boolean);
+    // Only the real delivery-address fields captured at checkout
+    // (#coAddress + #coEmirate). "pobox" is the PO Box printed ON the
+    // stamp's design (from the configurator) — a different field
+    // entirely, unrelated to where the package ships — so it must
+    // never be mixed into the shipping address here.
+    var parts = [o.customer_address, o.emirate, 'UAE'].filter(Boolean);
     return parts.join(', ');
   }
 
