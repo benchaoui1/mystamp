@@ -467,10 +467,10 @@
       const RmAr = 118;  // Arabic arc — BOTTOM
 
       svg.setAttribute('viewBox', '0 0 300 300');
-      // 38mm nearly fills the box (barely any gap to the border); 30mm
-      // renders noticeably smaller so the two sizes are clearly
-      // distinguishable at a glance.
-      const sizePct = S.circleSize === 38 ? 98 : 68;
+      // 30mm's fill ratio (68%) looks clean with good breathing room —
+      // 38mm should read as only a little bigger than that, not crowd
+      // the box edge.
+      const sizePct = S.circleSize === 38 ? 76 : 68;
       svg.setAttribute('width', 300);
       svg.setAttribute('height', 300);
       svg.style.width = sizePct + '%';

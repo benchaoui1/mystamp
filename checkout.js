@@ -13,7 +13,7 @@
   var WA_NUMBER    = '971544032018';
   // Next-day delivery price depends on emirate
   var DELIVERY_BY_EMIRATE = {
-    'Dubai': 25,
+    'Dubai': 19,
     'Sharjah': 25,
     'Ajman': 25,
     'Abu Dhabi': 30,
@@ -21,7 +21,7 @@
     'Fujairah': 30,
     'Umm Al Quwain': 30
   };
-  var DEFAULT_NEXTDAY = 25;          // before an emirate is chosen
+  var DEFAULT_NEXTDAY = 19;          // before an emirate is chosen — same as Dubai
   var EXPRESS_PRICE   = 89;          // 4-hour express (flat)
 
   var SHAPE_LABEL = { circle: 'Round', oval: 'Oval', rect: 'Rectangle', square: 'Square', signature: 'Signature' };
@@ -164,8 +164,11 @@
 
   /* ── Pricing engine ──────────────────────────── */
   function currentNextdayPrice() {
-    // Price depends on the chosen emirate; fall back to default before selection
-    var em = (order.emirate || state.emirate || '').trim();
+    // Price depends ONLY on the delivery-address emirate picked right here in
+    // checkout — never on the company/trade-licence emirate captured earlier
+    // in the configurator. Defaults to Dubai (19 AED) until the customer
+    // picks a different delivery emirate.
+    var em = (state.emirate || '').trim();
     return DELIVERY_BY_EMIRATE[em] || DEFAULT_NEXTDAY;
   }
 
@@ -218,10 +221,10 @@
     var d = dubaiNow();
     var hour = d.getHours();
 
-    // Next-day: before 2 PM tomorrow
+    // Next-day: before 1 PM tomorrow
     var nd = new Date(d); nd.setDate(nd.getDate() + 1);
     var ndEl = $('etaNextday');
-    if (ndEl) ndEl.textContent = 'Arrives ' + fmtDay(nd) + ' before 2 PM';
+    if (ndEl) ndEl.textContent = 'Arrives ' + fmtDay(nd) + ' before 1 PM';
 
     // Express (Careem Box): within 4 hours if shop open (9–20)
     var exEl = $('etaExpress');
@@ -369,16 +372,17 @@
     });
   });
 
-  /* ── Emirate selection drives next-day delivery price ── */
+  /* ── Emirate selection drives next-day delivery price ──
+     Deliberately NOT pre-filled from order.emirate (the company/trade-
+     licence emirate) — delivery destination is a separate decision made
+     right here, and price should default to Dubai (19 AED) until the
+     customer actively picks a delivery emirate. */
   (function () {
     var sel = $('coEmirate');
     if (!sel) return;
-    // initialise from any saved order emirate
-    if (order.emirate) { try { sel.value = order.emirate; } catch (e) {} }
-    state.emirate = sel.value || order.emirate || '';
+    state.emirate = sel.value || '';
     sel.addEventListener('change', function () {
       state.emirate = sel.value;
-      order.emirate = sel.value;
       update();
     });
   })();
@@ -779,7 +783,7 @@
     } else if (state.delivery === 'express') {
       sub.textContent = "Express order received. We'll WhatsApp you to confirm and dispatch via Careem Box within 4 hours.";
     } else {
-      sub.textContent = "We've got your design. We'll WhatsApp you shortly to finalize and deliver before 2 PM tomorrow.";
+      sub.textContent = "We've got your design. We'll WhatsApp you shortly to finalize and deliver before 1 PM tomorrow.";
     }
     $('successWa').href = 'https://wa.me/' + WA_NUMBER + '?text=' + buildWaMessage(p, ref);
     ov.hidden = false;
@@ -838,10 +842,9 @@
       // Strip any leading "+<code> " so it doesn't duplicate the country selector
       $('coPhone').value = String(order.phone).replace(/^\+\d{1,4}\s*/, '');
     }
-    if (order.emirate && $('coEmirate')) {
-      var opt = Array.prototype.find.call($('coEmirate').options, function (o) { return o.value === order.emirate; });
-      if (opt) $('coEmirate').value = order.emirate;
-    }
+    // Delivery emirate is intentionally left unselected here (see the
+    // "Emirate selection" block below) — it defaults to Dubai pricing
+    // until the customer picks their own delivery destination.
   }
 
   /* ── Init ────────────────────────────────────── */
