@@ -317,7 +317,9 @@
 
 /* ── Optional name field ── */
 .sig-name-input {
-  width: 100%; font-family: 'Inter', sans-serif; font-size: 15px;
+  width: 100%; font-family: 'Inter', sans-serif;
+  /* 16px minimum so iOS Safari doesn't auto-zoom the page on focus */
+  font-size: 16px;
   color: var(--cfg-text); padding: 13px 16px; border-radius: 12px;
   border: 1px solid var(--cfg-border); background: var(--cfg-input-bg);
   transition: border-color .2s, background .2s, box-shadow .2s;

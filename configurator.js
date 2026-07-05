@@ -496,6 +496,10 @@
       svg.appendChild(tEn);
 
       // Arabic — BOTTOM
+      // Force strict RTL rendering: some mobile WebKit builds mis-order
+      // Arabic glyphs on a curved <textPath> unless direction/unicode-bidi
+      // are explicitly set (desktop Chrome hides this bug, real iOS Safari
+      // does not).
       const arFontSize = fitFontSize(ar, 19, 280, 9);
       const tAr = document.createElementNS(NS, 'text');
       tAr.setAttribute('font-family', FF);
@@ -503,9 +507,13 @@
       tAr.setAttribute('fill', C);
       tAr.setAttribute('font-weight', '700');
       tAr.setAttribute('text-anchor', 'middle');
+      tAr.setAttribute('direction', 'rtl');
+      tAr.setAttribute('unicode-bidi', 'bidi-override');
       const pAr = document.createElementNS(NS, 'textPath');
       pAr.setAttribute('href', '#pAr');
       pAr.setAttribute('startOffset', '50%');
+      pAr.setAttribute('direction', 'rtl');
+      pAr.setAttribute('unicode-bidi', 'bidi-override');
       pAr.textContent = ar;
       tAr.appendChild(pAr);
       svg.appendChild(tAr);
@@ -770,6 +778,7 @@
       svg.appendChild(tEnO);
 
       // Arabic on BOTTOM
+      // Same RTL/textPath fix as the round stamp (see comment above).
       const arFs = fitFontSize(ar, 19, 260, 9.5);
       const tArO = document.createElementNS(NS, 'text');
       tArO.setAttribute('font-family', FF);
@@ -777,9 +786,13 @@
       tArO.setAttribute('fill', C);
       tArO.setAttribute('font-weight', '700');
       tArO.setAttribute('text-anchor', 'middle');
+      tArO.setAttribute('direction', 'rtl');
+      tArO.setAttribute('unicode-bidi', 'bidi-override');
       const pArO = document.createElementNS(NS, 'textPath');
       pArO.setAttribute('href', '#oAr');
       pArO.setAttribute('startOffset', '50%');
+      pArO.setAttribute('direction', 'rtl');
+      pArO.setAttribute('unicode-bidi', 'bidi-override');
       pArO.textContent = ar;
       tArO.appendChild(pArO);
       svg.appendChild(tArO);

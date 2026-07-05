@@ -1562,7 +1562,9 @@ header {
   border: 1.5px solid var(--cfg-border);
   border-radius: 9px;
   font-family: 'Inter', sans-serif;
-  font-size: 13.5px;
+  /* 16px minimum so iOS Safari doesn't auto-zoom the page on focus —
+     this is the main company-name/PO-box/license field, used on every order. */
+  font-size: 16px;
   font-weight: 500;
   color: var(--cfg-text);
   outline: none;
@@ -4166,7 +4168,8 @@ header {
   outline: none;
   color: #fff;
   font-family: 'Inter', sans-serif;
-  font-size: 13px;
+  /* 16px minimum so iOS Safari doesn't auto-zoom the page on focus */
+  font-size: 16px;
   font-weight: 500;
 }
 .footer-newsletter-input::placeholder {
@@ -5163,7 +5166,8 @@ header {
   resize: none;
   overflow: hidden;
   font-family: 'Inter', sans-serif;
-  font-size: 13.5px;
+  /* 16px minimum so iOS Safari doesn't auto-zoom the page on focus */
+  font-size: 16px;
   line-height: 1.5;
   color: var(--cfg-text, #0b1a4a);
   padding: 1px 0;

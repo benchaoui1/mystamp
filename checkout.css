@@ -302,7 +302,9 @@
   text-transform: lowercase; }
 .co-field input {
   width: 100%; height: 48px; padding: 0 15px;
-  font-family: 'Inter', sans-serif; font-size: 14px; color: var(--cfg-text);
+  /* 16px minimum stops iOS Safari from auto-zooming the page when this
+     field is focused — anything smaller triggers the zoom-in-on-tap bug. */
+  font-family: 'Inter', sans-serif; font-size: 16px; color: var(--cfg-text);
   background: var(--cfg-input-bg);
   border: 1.5px solid var(--cfg-border); border-radius: 12px;
   transition: all 0.2s ease;
@@ -315,7 +317,7 @@
 .co-select-wrap { position: relative; }
 .co-select-wrap select {
   width: 100%; height: 48px; padding: 0 40px 0 15px;
-  font-family: 'Inter', sans-serif; font-size: 14px; color: var(--cfg-text);
+  font-family: 'Inter', sans-serif; font-size: 16px; color: var(--cfg-text);
   background: var(--cfg-input-bg);
   border: 1.5px solid var(--cfg-border); border-radius: 12px;
   appearance: none; -webkit-appearance: none; cursor: pointer;
@@ -332,15 +334,15 @@
 
 /* Phone: country-code select + local number, side by side */
 .co-phone-group { display: flex; gap: 8px; }
-.co-phone-code { flex: 0 0 108px; }
+.co-phone-code { flex: 0 0 122px; }
 .co-phone-code select {
-  padding: 0 26px 0 10px; font-size: 13px; font-weight: 600;
+  padding: 0 26px 0 10px; font-size: 16px; font-weight: 600;
 }
 .co-phone-code .co-select-arrow { right: 8px; }
 .co-phone-input { flex: 1; min-width: 0; }
 @media (max-width: 380px) {
-  .co-phone-code { flex-basis: 92px; }
-  .co-phone-code select { font-size: 12px; padding-left: 8px; }
+  .co-phone-code { flex-basis: 104px; }
+  .co-phone-code select { padding-left: 8px; }
 }
 
 /* Emirates ID upload */
