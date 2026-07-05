@@ -400,7 +400,7 @@
   ['dragenter', 'dragover'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('is-drag'); }); });
   ['dragleave', 'drop'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove('is-drag'); }); });
   drop.addEventListener('drop', function (e) { if (e.dataTransfer && e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]); });
-  fileRemove.addEventListener('click', function () { uploaded = false; sigIdData = null; sigIdName = null; sigIdType = null; fileInput.value = ''; fileCard.classList.remove('show'); drop.style.display = 'block'; refreshSubmit(); });
+  fileRemove.addEventListener('click', function () { uploaded = false; sigIdData = null; sigIdName = null; sigIdType = null; fileInput.value = ''; fileCard.classList.remove('show'); drop.style.display = 'flex'; refreshSubmit(); });
 
   /* ════════════════════════════════════════
      SUBMIT
@@ -457,4 +457,25 @@
 
   /* init */
   refreshControls();
+})();
+
+/* ───── Scroll-reveal for the SEO claim box + FAQ accordion ───── */
+(function () {
+  'use strict';
+  var items = document.querySelectorAll('.sig-reveal');
+  if (!items.length) return;
+  if (!('IntersectionObserver' in window)) {
+    items.forEach(function (el) { el.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry, i) {
+      if (entry.isIntersecting) {
+        var el = entry.target;
+        setTimeout(function () { el.classList.add('in'); }, i * 60);
+        io.unobserve(el);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+  items.forEach(function (el) { io.observe(el); });
 })();

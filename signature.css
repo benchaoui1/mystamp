@@ -345,49 +345,52 @@
 
 .sig-drop {
   position: relative;
-  border: 1.6px dashed #c5cee0; border-radius: 16px;
+  border: 1.6px dashed #c5cee0; border-radius: 12px;
   background: var(--cfg-input-bg);
-  padding: 30px 20px; text-align: center;
+  padding: 16px 16px; text-align: center;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
   cursor: pointer; transition: border-color .25s, background .25s, transform .2s;
 }
 .sig-drop:hover { border-color: var(--bg-rich); background: #f2f6fd; }
 .sig-drop.is-drag { border-color: var(--bg-rich); background: rgba(0,46,138,0.05); transform: scale(1.01); }
 .sig-drop-icon {
-  width: 48px; height: 48px; margin: 0 auto 12px; border-radius: 14px;
+  width: 34px; height: 34px; margin: 0; flex-shrink: 0; border-radius: 10px;
   display: grid; place-items: center; color: var(--bg-rich);
   background: linear-gradient(135deg, rgba(0,46,138,0.10), rgba(111,196,255,0.12));
 }
-.sig-drop-title { font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 14.5px; color: var(--cfg-text); }
+.sig-drop-icon svg { width: 17px; height: 17px; }
+.sig-drop-text { text-align: left; }
+.sig-drop-title { font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 13.5px; color: var(--cfg-text); }
 .sig-drop-title b { color: var(--bg-rich); }
-.sig-drop-sub { font-size: 12px; color: var(--cfg-text-mute); margin-top: 4px; }
+.sig-drop-sub { font-size: 11.5px; color: var(--cfg-text-mute); margin-top: 2px; }
 .sig-drop input[type=file] { display: none; }
 
-/* Uploaded preview */
+/* Uploaded preview — GREEN success state */
 .sig-file {
-  display: none; align-items: center; gap: 14px;
-  padding: 14px; border-radius: 16px;
-  border: 1px solid var(--cfg-border); background: #fff;
-  box-shadow: 0 4px 16px rgba(0,15,60,0.05);
+  display: none; align-items: center; gap: 12px;
+  padding: 12px 14px; border-radius: 12px;
+  border: 1.5px solid #6ee7b7; background: linear-gradient(180deg, #f0fdf4, #ecfdf5);
+  box-shadow: 0 6px 18px -8px rgba(5,150,105,0.25);
 }
 .sig-file.show { display: flex; animation: sigUp .35s ease both; }
 .sig-file-thumb {
-  width: 56px; height: 56px; border-radius: 11px; flex-shrink: 0;
-  object-fit: cover; background: var(--cfg-input-bg);
-  display: grid; place-items: center; color: var(--bg-rich);
-  border: 1px solid var(--cfg-border-soft);
+  width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0;
+  object-fit: cover; background: #fff;
+  display: grid; place-items: center; color: #059669;
+  border: 1px solid #a7f3d0;
 }
-.sig-file-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 11px; }
+.sig-file-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
 .sig-file-meta { flex: 1; min-width: 0; }
 .sig-file-name {
-  font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 13.5px; color: var(--cfg-text);
+  font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 13px; color: #065f46;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.sig-file-size { font-size: 12px; color: var(--cfg-text-mute); margin-top: 2px; display: flex; align-items: center; gap: 6px; }
-.sig-file-ok { display: inline-flex; align-items: center; gap: 4px; color: #059669; font-weight: 600; }
+.sig-file-size { font-size: 11.5px; color: #059669; margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+.sig-file-ok { display: inline-flex; align-items: center; gap: 4px; color: #059669; font-weight: 700; }
 .sig-file-remove {
-  flex-shrink: 0; width: 32px; height: 32px; border-radius: 9px;
-  display: grid; place-items: center; color: #9aa3b2;
-  border: 1px solid var(--cfg-border); background: #fff; transition: all .2s;
+  flex-shrink: 0; width: 30px; height: 30px; border-radius: 9px;
+  display: grid; place-items: center; color: #059669;
+  border: 1px solid #a7f3d0; background: #fff; transition: all .2s;
 }
 .sig-file-remove:hover { color: #ef4444; border-color: #fecaca; background: #fef2f2; }
 
@@ -612,4 +615,120 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .sig-scan.run::before, .sig-scan.run::after, .sig-drag-hint { animation: none !important; }
+}
+/* SEO buying guide */
+.sig-seo {
+  padding: 88px 24px;
+  background: #f7f9ff;
+  color: #101828;
+}
+.sig-seo-wrap { width: min(1120px, 100%); margin: 0 auto; }
+
+/* Scroll-reveal utility, shared by the claim box + FAQ items */
+.sig-reveal { opacity: 0; transform: translateY(22px); transition: opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1); }
+.sig-reveal.in { opacity: 1; transform: translateY(0); }
+
+.sig-seo-head { text-align: center; max-width: 780px; margin: 0 auto 56px; }
+.sig-seo-eyebrow {
+  display: block; margin-bottom: 14px; color: #2457d6;
+  font: 800 12px/1.2 'Manrope', sans-serif; letter-spacing: .12em; text-transform: uppercase;
+}
+
+/* Centered "claim" box around the key line */
+.sig-claim {
+  position: relative;
+  display: inline-flex; flex-direction: column; align-items: center;
+  max-width: 720px; margin: 0 auto 28px; padding: 36px 32px 32px;
+  background: linear-gradient(180deg, #ffffff 0%, #eef3ff 100%);
+  border: 1px solid #dbe4fa;
+  border-radius: 22px;
+  box-shadow: 0 24px 60px -24px rgba(31, 66, 135, .28);
+  overflow: hidden;
+}
+.sig-claim::before {
+  content: '';
+  position: absolute; inset: -40% -20% auto -20%; height: 140px;
+  background: radial-gradient(ellipse 60% 100% at 50% 0%, rgba(58,103,255,.14), transparent 70%);
+  pointer-events: none;
+}
+.sig-claim-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 56px; height: 56px; border-radius: 16px; margin-bottom: 18px;
+  background: linear-gradient(160deg, #3a67ff, #1740c4);
+  color: #fff; box-shadow: 0 12px 28px -6px rgba(58,103,255,.55);
+  animation: sigClaimPop .6s .1s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes sigClaimPop { 0% { transform: scale(.4) rotate(-8deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+.sig-claim h2 {
+  margin: 0; max-width: 560px;
+  font: 900 clamp(1.4rem, 3.2vw, 2rem)/1.25 'Manrope', sans-serif;
+  letter-spacing: -.03em; text-align: center; position: relative; z-index: 1;
+}
+
+.sig-seo-lead { max-width: 720px; margin: 0 auto; color: #475467; font-size: 1.05rem; line-height: 1.8; text-align: center; }
+.sig-seo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.sig-seo-grid article {
+  padding: 28px; border: 1px solid #dfe6f5; border-radius: 20px;
+  background: #fff; box-shadow: 0 14px 40px rgba(31, 66, 135, .07);
+}
+.sig-seo-grid h3 { margin: 0 0 12px; font: 800 1.08rem/1.35 'Manrope', sans-serif; }
+.sig-seo-grid p { margin: 0; color: #475467; line-height: 1.75; }
+
+/* ─── FAQ accordion — colour, motion, real affordance ─── */
+.sig-seo-faq { max-width: 860px; margin: 64px auto 0; }
+.sig-faq-head { text-align: center; margin-bottom: 28px; }
+.sig-seo-faq h2 { margin: 0; font: 900 clamp(1.7rem, 4vw, 2.4rem)/1.15 'Manrope', sans-serif; letter-spacing: -.03em; }
+
+.sig-faq-item {
+  background: #fff;
+  border: 1.5px solid #e3e9f7;
+  border-radius: 18px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease;
+}
+.sig-faq-item:hover { transform: translateY(-2px); box-shadow: 0 10px 26px -14px rgba(31,66,135,.25); }
+.sig-faq-item[open] { border-color: #b7c8f7; box-shadow: 0 16px 40px -18px rgba(31,66,135,.3); }
+
+.sig-faq-item summary {
+  list-style: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 19px 22px;
+  font: 800 1rem/1.4 'Manrope', sans-serif; color: #101828;
+}
+.sig-faq-item summary::-webkit-details-marker { display: none; }
+.sig-faq-q { flex: 1; }
+
+.sig-faq-arrow {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(160deg, #eef3ff, #dde8ff);
+  color: #2457d6;
+  transition: transform .35s cubic-bezier(.4,0,.2,1), background .3s ease, color .3s ease;
+}
+.sig-faq-arrow svg { width: 14px; height: 14px; }
+.sig-faq-item[open] .sig-faq-arrow {
+  transform: rotate(180deg);
+  background: linear-gradient(160deg, #3a67ff, #1740c4);
+  color: #fff;
+}
+
+/* Height animation without JS: grid-template-rows 0fr -> 1fr */
+.sig-faq-item > .sig-faq-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows .38s cubic-bezier(.4,0,.2,1);
+}
+.sig-faq-item[open] > .sig-faq-body { grid-template-rows: 1fr; }
+.sig-faq-body-inner { overflow: hidden; }
+.sig-faq-body-inner p { margin: 0; padding: 0 22px 20px; color: #475467; line-height: 1.75; }
+
+.sig-faq-more { text-align: center; margin: 28px 0 0; color: #64748b; font-size: .95rem; }
+.sig-faq-more a { color: #124bd8; font-weight: 700; text-decoration: none; }
+.sig-faq-more a:hover { text-decoration: underline; }
+
+@media (max-width: 760px) {
+  .sig-seo { padding: 64px 20px; }
+  .sig-seo-grid { grid-template-columns: 1fr; }
+  .sig-claim { padding: 28px 22px 26px; }
 }

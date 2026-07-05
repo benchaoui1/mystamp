@@ -1,0 +1,42 @@
+:root {
+  --bg-deepest: #000a24;
+  --bg-deep: #001138;
+  --bg-mid: #001f5c;
+  --bg-rich: #002e8a;
+  --bg-bright: #0a47b5;
+  --accent-cyan: #6fc4ff;
+  --accent-soft: #adc8f0;
+  --gold: #f0c674;
+  --white: #fff;
+  --line: #e5e7eb;
+  --cfg-text: #0b1a4a;
+  --cfg-text-mute: #6b7280;
+  --cfg-bg: #f7f9fd;
+  --cfg-card-bg: #fff;
+  --cfg-border: #e5e7eb;
+  --cfg-border-soft: #eef2f7;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { margin: 0; scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: #111827;
+  overflow-x: hidden;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+img, svg { max-width: 100%; }
+a { text-underline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

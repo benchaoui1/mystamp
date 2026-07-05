@@ -16,47 +16,77 @@
   }
 
   // Upload an array of File objects under a folder named after the order ref.
+  // Runs all uploads in parallel (instead of one-by-one) — with several
+  // documents (ID front/back, logo, licence) this is the difference between
+  // waiting for 4 sequential round-trips and waiting for 1.
   // Returns an array of { name, path } for the stored files.
   async function uploadFiles(orderRef, files) {
     var sb = client();
     if (!sb || !files || !files.length) return [];
 
-    var stored = [];
-    for (var i = 0; i < files.length; i++) {
-      var file = files[i];
+    var uploads = files.map(function (file, i) {
       var safeName = (file.name || ('file-' + i)).replace(/[^a-zA-Z0-9._-]/g, '_');
       var path = orderRef + '/' + Date.now() + '-' + i + '-' + safeName;
-
-      try {
-        var result = await sb.storage.from(BUCKET).upload(path, file, {
-          cacheControl: '3600',
-          upsert: false,
-          contentType: file.type || 'application/octet-stream'
-        });
+      return sb.storage.from(BUCKET).upload(path, file, {
+        cacheControl: '3600',
+        upsert: false,
+        contentType: file.type || 'application/octet-stream'
+      }).then(function (result) {
         if (result.error) {
-          // Surface the reason so we can see it in the browser console
           console.error('Upload failed for', file.name, '→', result.error.message);
-        } else {
-          stored.push({ name: file.name, path: path, type: file.type || '' });
+          return null;
         }
-      } catch (e) {
+        return { name: file.name, path: path, type: file.type || '' };
+      }).catch(function (e) {
         console.error('Upload threw for', file.name, '→', e);
-      }
-    }
-    return stored;
+        return null;
+      });
+    });
+
+    var results = await Promise.all(uploads);
+    return results.filter(Boolean);
   }
 
   // Insert the order. Returns { ok, error }.
+  // Resilient: if the table is missing an optional column (e.g. a newly added
+  // field like note/pobox), Postgres returns a "column ... does not exist"
+  // error. We detect that, drop the offending/optional columns, and retry so
+  // the order is never lost.
+  var OPTIONAL_COLUMNS = [
+    'note', 'pobox', 'with_license_number', 'is_own_design', 'free_stamps',
+    'delivery_fee', 'customer_email', 'customer_address'
+  ];
+
   async function saveOrder(orderData) {
     var sb = client();
     if (!sb) return { ok: false, error: 'Supabase not configured' };
-    try {
-      var res = await sb.from('orders').insert([orderData]);
-      if (res.error) return { ok: false, error: res.error.message };
-      return { ok: true };
-    } catch (e) {
-      return { ok: false, error: String(e) };
+
+    async function tryInsert(row) {
+      try {
+        var res = await sb.from('orders').insert([row]);
+        if (res.error) return { ok: false, error: res.error.message };
+        return { ok: true };
+      } catch (e) {
+        return { ok: false, error: String(e) };
+      }
     }
+
+    // First attempt with the full payload
+    var first = await tryInsert(orderData);
+    if (first.ok) return first;
+
+    // If a column is missing, strip optional columns and retry once
+    var msg = (first.error || '').toLowerCase();
+    if (msg.indexOf('column') !== -1 || msg.indexOf('does not exist') !== -1 || msg.indexOf('schema') !== -1) {
+      var slim = {};
+      Object.keys(orderData).forEach(function (k) {
+        if (OPTIONAL_COLUMNS.indexOf(k) === -1) slim[k] = orderData[k];
+      });
+      console.warn('[mystamp] Retrying order insert without optional columns:', first.error);
+      var second = await tryInsert(slim);
+      return second;
+    }
+    return first;
   }
 
   async function updateOrderStatus(orderRef, status) {

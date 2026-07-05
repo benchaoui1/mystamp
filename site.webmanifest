@@ -1,0 +1,22 @@
+{
+  "name": "MyStamp — Company Stamp Maker Dubai",
+  "short_name": "MyStamp",
+  "description": "Design and order custom self-inking company stamps in Dubai.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0035b9",
+  "icons": [
+    {
+      "src": "/IMAGES/mystamp-company.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/IMAGES/mystamp-apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

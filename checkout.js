@@ -8,10 +8,21 @@
   'use strict';
 
   /* ── Config ──────────────────────────────────── */
-  var BASE_PRICE   = 129;            // AED per stamp
-  var VAT_RATE     = 0.05;           // 5% (price is VAT-inclusive)
+  var BASE_PRICE   = 99;             // AED per stamp
+  var LOGO_FEE     = 19;             // AED — added once when a logo is included
   var WA_NUMBER    = '971544032018';
-  var DELIVERY = { nextday: 19, express: 89, pickup: 0 };
+  // Next-day delivery price depends on emirate
+  var DELIVERY_BY_EMIRATE = {
+    'Dubai': 25,
+    'Sharjah': 25,
+    'Ajman': 25,
+    'Abu Dhabi': 30,
+    'Ras Al Khaimah': 30,
+    'Fujairah': 30,
+    'Umm Al Quwain': 30
+  };
+  var DEFAULT_NEXTDAY = 25;          // before an emirate is chosen
+  var EXPRESS_PRICE   = 89;          // 4-hour express (flat)
 
   var SHAPE_LABEL = { circle: 'Round', oval: 'Oval', rect: 'Rectangle', square: 'Square', signature: 'Signature' };
 
@@ -41,7 +52,6 @@
     sumDiscount:  $('sumDiscount'),
     sumDelivery:  $('sumDelivery'),
     sumDeliveryLabel: $('sumDeliveryLabel'),
-    sumVat:       $('sumVat'),
     sumGrand:     $('sumGrand'),
     savedPill:    $('savedPill'),
     savedText:    $('savedText'),
@@ -73,6 +83,19 @@
 
   /* ── Render the stamp preview ────────────────── */
   function renderPreview() {
+    // Customer uploaded their OWN existing design — show it exactly
+    if (order.ownDesignData) {
+      var isPdf = (order.ownDesignType === 'application/pdf') || /\.pdf$/i.test(order.ownDesignName || '');
+      var ownHtml;
+      if (isPdf) {
+        ownHtml = '<embed src="' + order.ownDesignData + '" type="application/pdf" style="width:100%;height:100%;min-height:200px;background:#fff;border-radius:8px;">';
+      } else {
+        ownHtml = '<img src="' + order.ownDesignData + '" alt="Your uploaded design" style="width:100%;height:100%;object-fit:contain;background:#fff;">';
+      }
+      els.previewMount.innerHTML = ownHtml;
+      els.lineThumb.innerHTML = ownHtml;
+      return;
+    }
     // Signature stamp — show the captured signature image
     if (order.type === 'signature' && order.signatureData) {
       var sigImg = '<img src="' + order.signatureData + '" alt="Your signature" style="width:100%;height:100%;object-fit:contain;background:#fff;">';
@@ -103,6 +126,20 @@
   function renderSpecs() {
     var company = order.company && order.company.trim() ? order.company.trim() : 'Your Company Stamp';
     els.specCompany.textContent = company;
+
+    // Own-design order — the customer's uploaded artwork is the design
+    if (order.ownDesignData) {
+      els.specCompany.textContent = 'Your uploaded design';
+      els.lineName.textContent = 'Custom Stamp';
+      els.lineMeta.textContent = 'From your own design';
+      var ownRows = [];
+      ownRows.push('<li><span class="co-spec-k">Design</span> Your uploaded artwork</li>');
+      if (order.note) ownRows.push('<li><span class="co-spec-k">Note</span> ' + escapeHtml(order.note) + '</li>');
+      if (order.emirate) ownRows.push('<li><span class="co-spec-k">Emirate</span> ' + escapeHtml(order.emirate) + '</li>');
+      els.specList.innerHTML = ownRows.join('');
+      return;
+    }
+
     els.lineName.textContent = (SHAPE_LABEL[order.shape] || 'Custom') + ' Stamp';
     els.lineMeta.textContent = (SHAPE_LABEL[order.shape] || '') + ' · ' + (order.size || '');
 
@@ -110,9 +147,10 @@
     rows.push('<li><span class="co-spec-k">Shape</span> ' + (SHAPE_LABEL[order.shape] || 'Custom') + '</li>');
     rows.push('<li><span class="co-spec-k">Size</span> ' + (order.size || '—') + '</li>');
     rows.push('<li><span class="co-spec-k">Ink</span> <span class="co-spec-swatch" style="background:' + (order.color || '#3a67ff') + '"></span> ' + inkName(order.color) + '</li>');
-    if (order.withLogo) rows.push('<li><span class="co-spec-k">Logo</span> Included</li>');
+    if (order.withLogo && !order.ownDesignData) rows.push('<li><span class="co-spec-k">Logo</span> Included</li>');
     if (order.withLicNum && order.licNum) rows.push('<li><span class="co-spec-k">License №</span> ' + escapeHtml(order.licNum) + '</li>');
     if (order.emirate) rows.push('<li><span class="co-spec-k">Emirate</span> ' + escapeHtml(order.emirate) + '</li>');
+    if (order.note) rows.push('<li><span class="co-spec-k">Note</span> ' + escapeHtml(order.note) + '</li>');
     els.specList.innerHTML = rows.join('');
   }
 
@@ -125,28 +163,43 @@
   }
 
   /* ── Pricing engine ──────────────────────────── */
+  function currentNextdayPrice() {
+    // Price depends on the chosen emirate; fall back to default before selection
+    var em = (order.emirate || state.emirate || '').trim();
+    return DELIVERY_BY_EMIRATE[em] || DEFAULT_NEXTDAY;
+  }
+
   function compute() {
     var qty = state.qty;   // quantity the customer pays for
 
     // Offer: buy 3 → get the 4th free. For every 3 paid stamps, 1 is gifted.
     var freeStamps = Math.floor(qty / 3);
     var received   = qty + freeStamps;
-    var subtotal   = qty * BASE_PRICE;          // customer pays for selected qty
+    // Logo is an add-on per stamp (matches the configurator: (base + logo) * qty)
+    var hasLogo    = !!order.withLogo && !order.ownDesignData;
+    var baseSubtotal = qty * BASE_PRICE;        // stamps only
+    var logoTotal  = hasLogo ? (qty * LOGO_FEE) : 0;
+    var subtotal   = baseSubtotal + logoTotal;  // what the customer pays for items
 
-    // Delivery — free when qty >= 2 (any method)
-    var deliveryBase = DELIVERY[state.delivery];
-    var deliveryFree = qty >= 2;
+    // Delivery base by method
+    var deliveryBase;
+    if (state.delivery === 'pickup')      deliveryBase = 0;
+    else if (state.delivery === 'express') deliveryBase = EXPRESS_PRICE;
+    else                                   deliveryBase = currentNextdayPrice();
+
+    // Free shipping (qty >= 2) applies ONLY to standard next-day delivery,
+    // NOT to 4-hour express (express is always paid).
+    var deliveryFree = (qty >= 2) && (state.delivery === 'nextday');
     var deliveryCost = deliveryFree ? 0 : deliveryBase;
 
     var grand = subtotal + deliveryCost;
-    var vatIncluded = Math.round(grand - (grand / (1 + VAT_RATE)));
 
     return {
       qty: qty, freeStamps: freeStamps, received: received,
-      subtotal: subtotal,
+      subtotal: subtotal, baseSubtotal: baseSubtotal, hasLogo: hasLogo, logoTotal: logoTotal,
       deliveryBase: deliveryBase, deliveryCost: deliveryCost, deliveryFree: deliveryFree,
-      grand: grand, vat: vatIncluded,
-      // value of what they got free (gifted stamps + waived delivery)
+      grand: grand,
+      // value of what they got free (gifted stamps + waived next-day delivery)
       saved: (freeStamps * BASE_PRICE) + (deliveryFree ? deliveryBase : 0)
     };
   }
@@ -165,10 +218,10 @@
     var d = dubaiNow();
     var hour = d.getHours();
 
-    // Next-day: before 6 PM tomorrow
+    // Next-day: before 2 PM tomorrow
     var nd = new Date(d); nd.setDate(nd.getDate() + 1);
     var ndEl = $('etaNextday');
-    if (ndEl) ndEl.textContent = 'Arrives ' + fmtDay(nd) + ' before 6 PM';
+    if (ndEl) ndEl.textContent = 'Arrives ' + fmtDay(nd) + ' before 2 PM';
 
     // Express (Careem Box): within 4 hours if shop open (9–20)
     var exEl = $('etaExpress');
@@ -212,9 +265,15 @@
       }
     }
 
-    // Subtotal — customer pays for selected quantity
-    els.sumSubtotal.textContent = 'AED ' + p.subtotal;
+    // Subtotal — stamps only; logo shown as its own line
+    els.sumSubtotal.textContent = 'AED ' + p.baseSubtotal;
     els.discountRow.hidden = true;
+    var logoRow = document.getElementById('logoRow');
+    var sumLogo = document.getElementById('sumLogo');
+    if (logoRow) {
+      logoRow.style.display = p.hasLogo ? 'flex' : 'none';
+      if (p.hasLogo && sumLogo) sumLogo.textContent = 'AED ' + p.logoTotal;
+    }
 
     // Delivery line
     if (p.deliveryFree && p.deliveryBase > 0) {
@@ -226,16 +285,21 @@
     }
     els.sumDeliveryLabel.textContent = state.delivery === 'pickup' ? 'Pickup' : 'Delivery';
 
-    els.sumVat.textContent = 'AED ' + p.vat;
     els.sumGrand.textContent = p.grand;
     els.confirmAmt.textContent = 'AED ' + p.grand;
     els.mobileTotal.textContent = p.grand;
 
-    // Delivery option "was" strikethroughs when free
+    // Keep the next-day option's displayed price in sync with the chosen emirate
+    var ndAmt = document.querySelector('.co-deliv[data-method="nextday"] .co-deliv-amt');
+    if (ndAmt) ndAmt.dataset.price = String(currentNextdayPrice());
+
+    // Delivery option "was" strikethroughs — free applies to NEXT-DAY only
     document.querySelectorAll('.co-deliv-amt[data-price]').forEach(function (amt) {
+      var method = amt.closest('.co-deliv').dataset.method;
       var base = parseInt(amt.dataset.price, 10);
       var was = amt.parentElement.querySelector('.co-deliv-was');
-      if (p.deliveryFree && base > 0) {
+      var freeForThis = (state.qty >= 2) && (method === 'nextday') && base > 0;
+      if (freeForThis) {
         amt.textContent = 'Free';
         amt.classList.add('is-free');
         if (was) { was.textContent = 'AED ' + base; was.classList.add('show'); }
@@ -268,14 +332,14 @@
     b.classList.remove('is-unlocked');
     els.promoAdd.style.display = '';
     if (p.qty === 1) {
-      t.innerHTML = '<strong>Add 1 more stamp</strong><span>and delivery is on us — free.</span>';
+      t.innerHTML = '<strong>Add 1 more</strong><span>and get free delivery 🎉</span>';
     } else if (p.qty === 2) {
       b.classList.add('is-unlocked');
-      t.innerHTML = '<strong>Free delivery unlocked 🎉</strong><span>Add 1 more → your 4th stamp is free.</span>';
+      t.innerHTML = '<strong>Free standard delivery unlocked 🎉</strong><span>Add 1 more → your 4th stamp is free.</span>';
     } else if (p.qty >= 3) {
       b.classList.add('is-unlocked');
       var extra = p.freeStamps > 1 ? (' + ' + p.freeStamps + ' free stamps') : ' + 1 free stamp';
-      t.innerHTML = '<strong>Best value unlocked 🎁</strong><span>Free delivery' + extra + '. You get ' + p.received + ' stamps.</span>';
+      t.innerHTML = '<strong>Best value unlocked 🎁</strong><span>Free standard delivery' + extra + '. You get ' + p.received + ' stamps.</span>';
       els.promoAdd.style.display = 'none';
     }
   }
@@ -305,10 +369,24 @@
     });
   });
 
+  /* ── Emirate selection drives next-day delivery price ── */
+  (function () {
+    var sel = $('coEmirate');
+    if (!sel) return;
+    // initialise from any saved order emirate
+    if (order.emirate) { try { sel.value = order.emirate; } catch (e) {} }
+    state.emirate = sel.value || order.emirate || '';
+    sel.addEventListener('change', function () {
+      state.emirate = sel.value;
+      order.emirate = sel.value;
+      update();
+    });
+  })();
+
   /* ── Emirates ID upload ──────────────────────── */
   var getIdFiles = function () { return []; };
   (function () {
-    var drop = $('idDrop'), input = $('idInput'), list = $('idFiles'), meta = $('idMeta');
+    var drop = $('idDrop'), input = $('idInput'), list = $('idFiles');
     if (!drop || !input) return;
     var files = [];
 
@@ -316,29 +394,74 @@
       list.innerHTML = '';
       files.forEach(function (f, i) {
         var row = document.createElement('div');
-        row.className = 'co-id-file';
+        row.className = 'lic-compact-done';
+        row.style.marginTop = '8px';
         row.innerHTML =
-          '<span class="co-id-file-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>' +
-          '<span class="co-id-file-info"><span class="co-id-file-name">' + escapeHtml(f.name) + '</span><span class="co-id-file-size">' + fmtSize(f.size) + '</span></span>' +
-          '<button class="co-id-file-x" data-i="' + i + '" aria-label="Remove"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+          '<span class="lic-compact-check"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>' +
+          '<div class="lic-compact-info"><div class="lic-compact-fname">' + escapeHtml(f.name) + '</div><div class="lic-compact-status">Uploaded successfully · ' + fmtSize(f.size) + '</div></div>' +
+          '<button class="lic-compact-del" data-i="' + i + '" title="Remove" type="button"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>';
         list.appendChild(row);
       });
-      meta.textContent = files.length
-        ? files.length + ' file' + (files.length > 1 ? 's' : '') + ' added · tap to add more'
-        : 'Drag & drop or browse · max 25 MB';
-      list.querySelectorAll('.co-id-file-x').forEach(function (btn) {
+      // Hide the upload prompt once at least one file is added (like the licence flow)
+      drop.style.display = files.length ? 'none' : '';
+      // Clear the required-error highlight once a file is added
+      if (files.length) {
+        var blk = document.getElementById('idBlock');
+        if (blk) blk.classList.remove('co-id-error');
+      }
+      list.querySelectorAll('.lic-compact-del').forEach(function (btn) {
         btn.addEventListener('click', function (e) {
           e.preventDefault(); e.stopPropagation();
           files.splice(parseInt(btn.dataset.i, 10), 1); render();
         });
       });
     }
-    function add(fileList) {
-      Array.prototype.forEach.call(fileList, function (f) {
-        if (f.size > 25 * 1024 * 1024) return;
-        files.push(f);
+    // Downscale phone-camera photos of the Emirates ID before we ever queue
+    // them for upload — this is the single biggest lever on "sending a
+    // document takes forever" over a mobile connection. PDFs are untouched.
+    function compressToFile(file, maxDim, quality) {
+      return new Promise(function (resolve) {
+        if (!file.type || file.type.indexOf('image/') !== 0) { resolve(file); return; }
+        var reader = new FileReader();
+        reader.onerror = function () { resolve(file); };
+        reader.onload = function (e) {
+          var img = new Image();
+          img.onerror = function () { resolve(file); };
+          img.onload = function () {
+            try {
+              var w = img.width, h = img.height;
+              var scale = Math.min(1, (maxDim || 1800) / Math.max(w, h));
+              var outW = Math.max(1, Math.round(w * scale));
+              var outH = Math.max(1, Math.round(h * scale));
+              var canvas = document.createElement('canvas');
+              canvas.width = outW; canvas.height = outH;
+              var ctx = canvas.getContext('2d');
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(0, 0, outW, outH);
+              ctx.drawImage(img, 0, 0, outW, outH);
+              canvas.toBlob(function (blob) {
+                if (!blob || blob.size >= file.size) { resolve(file); return; }
+                var newName = file.name.replace(/\.[a-z0-9]+$/i, '') + '.jpg';
+                resolve(new File([blob], newName, { type: 'image/jpeg' }));
+              }, 'image/jpeg', quality || 0.82);
+            } catch (err) { resolve(file); }
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
       });
-      render();
+    }
+
+    function add(fileList) {
+      var incoming = Array.prototype.filter.call(fileList, function (f) {
+        return f.size <= 25 * 1024 * 1024;
+      });
+      if (!incoming.length) return;
+      Promise.all(incoming.map(function (f) { return compressToFile(f, 1800, 0.82); }))
+        .then(function (compressed) {
+          compressed.forEach(function (f) { files.push(f); });
+          render();
+        });
     }
     input.addEventListener('change', function () { add(input.files); input.value = ''; });
     drop.addEventListener('keydown', function (e) {
@@ -358,11 +481,20 @@
     getIdFiles = function () { return files.slice(); };
   })();
 
+  /* ── Phone: combine country code select + local number ───── */
+  function getFullPhone() {
+    var codeSel = $('coPhoneCode');
+    var code = codeSel ? codeSel.value : '971';
+    var local = ($('coPhone').value || '').trim();
+    if (!local) return '';
+    return '+' + code + ' ' + local;
+  }
+
   /* ── Confirm → validate + WhatsApp handoff ───── */
   function validate() {
     var problems = [];
     var name = ($('coName').value || '').trim();
-    var phone = ($('coPhone').value || '').trim();
+    var phone = (getFullPhone() || '').trim();
     var emirate = $('coEmirate').value;
     var isPickup = state.delivery === 'pickup';
 
@@ -371,6 +503,17 @@
     if (!isPickup && !($('coAddress').value || '').trim()) problems.push($('coAddress'));
     if (!isPickup && !emirate) problems.push($('coEmirate'));
     if (!els.coTerms.checked) problems.push(els.coTerms.closest('.co-terms'));
+
+    // Emirates ID is required — but only when the ID block is shown
+    // (signature orders already provided it earlier, so the block is hidden).
+    var idBlock = $('idBlock');
+    var idShown = idBlock && idBlock.style.display !== 'none';
+    if (idShown && getIdFiles().length === 0) {
+      idBlock.classList.add('co-id-error');
+      problems.push(idBlock);
+    } else if (idBlock) {
+      idBlock.classList.remove('co-id-error');
+    }
 
     problems.forEach(function (el) {
       if (!el) return;
@@ -403,61 +546,42 @@
     L.push('*Stamp:* ' + (SHAPE_LABEL[order.shape] || 'Custom') + ' · ' + (order.size || ''));
     L.push('*Ink:* ' + inkName(order.color));
     if (order.company) L.push('*Company:* ' + order.company);
-    if (order.withLogo) L.push('*Logo:* included');
+    if (order.withLogo && !order.ownDesignData) L.push('*Logo:* included (+AED ' + (p.logoTotal || LOGO_FEE) + ')');
+    if (order.note) L.push('*Note:* ' + order.note);
     L.push('*Quantity:* ' + p.qty + (p.freeStamps ? ' paid + ' + p.freeStamps + ' free = ' + p.received + ' stamps' : ''));
     L.push('');
     var methodName = state.delivery === 'nextday' ? 'Next-day delivery'
       : state.delivery === 'express' ? '4-hour express (Careem Box)' : 'Pickup — Deira, Dubai';
     L.push('*Method:* ' + methodName);
     L.push('*Name:* ' + ($('coName').value || '').trim());
-    L.push('*Phone:* ' + ($('coPhone').value || '').trim());
+    L.push('*Phone:* ' + getFullPhone());
     if (state.delivery !== 'pickup') {
       L.push('*Address:* ' + ($('coAddress').value || '').trim() + ', ' + $('coEmirate').value);
     }
     var em = ($('coEmail').value || '').trim();
     if (em) L.push('*Email:* ' + em);
     L.push('');
-    L.push('*Total:* AED ' + p.grand + ' (incl. VAT' + (p.deliveryCost === 0 ? ' · free delivery' : '') + ')');
+    L.push('*Total:* AED ' + p.grand + (p.deliveryCost === 0 ? ' (free standard delivery)' : ''));
     if (p.saved > 0) L.push('💰 Saved AED ' + p.saved);
     L.push('');
     L.push('— I\'ll send my Emirates ID + design here. ✍️');
     return encodeURIComponent(L.join('\n'));
   }
 
-  /* ── Payment method toggle ───────────────────── */
-  var payMethod = 'card';  // 'card' | 'whatsapp'
-  (function () {
-    var wrap = $('payMethod');
-    if (!wrap) return;
-    wrap.querySelectorAll('.co-paymethod-opt').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        wrap.querySelectorAll('.co-paymethod-opt').forEach(function (b) { b.classList.remove('active'); });
-        btn.classList.add('active');
-        payMethod = btn.dataset.pay;
-        refreshConfirmButton();
-      });
-    });
-  })();
+  /* ── Payment method: card only (Telr) ───────────── */
+  var payMethod = 'card';
 
   function refreshConfirmButton() {
     var p = compute();
     var icon = $('confirmIcon'), text = $('confirmText'), trust = $('payTrustText');
-    if (payMethod === 'whatsapp') {
-      if (text) text.textContent = 'Order on WhatsApp';
-      if (icon) icon.innerHTML = '<path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>';
-      if (icon) icon.setAttribute('fill', 'currentColor');
-      if (icon) icon.setAttribute('stroke', 'none');
-      if (trust) trust.textContent = 'Confirm details & finish on WhatsApp';
-    } else {
-      if (text) text.textContent = 'Pay securely';
-      if (icon) icon.innerHTML = '<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>';
-      if (icon) icon.setAttribute('fill', 'none');
-      if (icon) icon.setAttribute('stroke', 'currentColor');
-      if (trust) trust.textContent = 'Secure card payment via Telr';
-    }
+    if (text) text.textContent = 'Pay securely';
+    if (icon) icon.innerHTML = '<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>';
+    if (icon) icon.setAttribute('fill', 'none');
+    if (icon) icon.setAttribute('stroke', 'currentColor');
+    if (trust) trust.textContent = 'Secure card payment via Telr';
   }
 
-  /* ── Confirm → card payment (Telr) or WhatsApp ── */
+  /* ── Confirm → card payment (Telr) ── */
   function buildOrderRow(p, ref, fileRefs, payVia) {
     return {
       order_ref: ref,
@@ -468,8 +592,12 @@
       size: order.size || null,
       ink_color: order.color || null,
       company: order.company || null,
-      with_logo: !!order.withLogo,
+      pobox: order.pobox || null,
+      with_logo: !!order.withLogo && !order.ownDesignData,
+      with_license_number: !!order.withLicNum,
+      is_own_design: !!order.ownDesignData,
       license_number: order.licNum || null,
+      note: order.note || null,
       // Quantity & pricing
       quantity: p.qty,
       free_stamps: p.freeStamps,
@@ -479,7 +607,7 @@
       delivery_fee: p.deliveryCost,
       // Customer
       customer_name: ($('coName').value || '').trim() || null,
-      customer_phone: ($('coPhone').value || '').trim() || null,
+      customer_phone: getFullPhone() || null,
       customer_email: ($('coEmail').value || '').trim() || null,
       customer_address: ($('coAddress').value || '').trim() || null,
       emirate: $('coEmirate').value || null,
@@ -491,52 +619,73 @@
   async function persistToSupabase(p, ref, payVia) {
     // Best-effort: uploads files + saves the order. Never blocks the
     // customer from paying if Supabase is momentarily unavailable.
+    // All documents (ID, logo, licence, design) upload IN PARALLEL —
+    // this is what makes "sending documents" fast instead of waiting
+    // through 4+ uploads one after another.
     if (!window.mystampOrders) return;
     try {
-      // 1) Emirates ID files (uploaded on this checkout page)
-      var files = getIdFiles();
-      var fileRefs = await window.mystampOrders.uploadFiles(ref, files);
+      var jobs = [];
 
-      // 2) Logo (carried over from the configurator as base64)
+      // 1) Emirates ID files (already compressed at selection time)
+      jobs.push(
+        window.mystampOrders.uploadFiles(ref, getIdFiles())
+          .then(function (refs) { return refs || []; })
+          .catch(function () { return []; })
+      );
+
+      // 2) Logo (carried over from the configurator as base64, already compressed)
       if (order.logoData) {
-        var logoRef = await window.mystampOrders.uploadDataUrl(
-          ref, order.logoData,
-          order.logoName || 'logo',
-          order.logoType || 'image/png'
+        jobs.push(
+          window.mystampOrders.uploadDataUrl(ref, order.logoData, order.logoName || 'logo', order.logoType || 'image/png')
+            .then(function (r) { if (r) r.kind = 'logo'; return r ? [r] : []; })
         );
-        if (logoRef) { logoRef.kind = 'logo'; fileRefs.push(logoRef); }
       }
 
-      // 3) License document (carried over from the configurator as base64)
+      // 3) License document (carried over from the configurator as base64, already compressed if it's a photo)
       if (order.licenseData) {
-        var licRef = await window.mystampOrders.uploadDataUrl(
-          ref, order.licenseData,
-          order.license || 'license',
-          order.licenseType || 'application/octet-stream'
+        jobs.push(
+          window.mystampOrders.uploadDataUrl(ref, order.licenseData, order.license || 'license', order.licenseType || 'application/octet-stream')
+            .then(function (r) { if (r) r.kind = 'license'; return r ? [r] : []; })
         );
-        if (licRef) { licRef.kind = 'license'; fileRefs.push(licRef); }
       }
 
-      // 4) The stamp DESIGN itself — convert the SVG preview to a PNG so you
-      //    receive exactly what the customer designed, as an image.
-      if (order.type === 'signature' && order.signatureData) {
-        // Signature stamp — upload the captured signature image
-        var sigRef = await window.mystampOrders.uploadDataUrl(
-          ref, order.signatureData, 'signature.png', 'image/png'
+      // 4) The stamp DESIGN itself.
+      //    If the customer uploaded their OWN existing artwork, that IS the
+      //    design — upload it exactly as provided (full quality, not
+      //    compressed, since this goes straight to production). Otherwise,
+      //    render the builder's SVG preview to a PNG.
+      if (order.ownDesignData) {
+        var extMatch = (order.ownDesignName || '').match(/\.[a-z0-9]+$/i);
+        var ownName = 'customer-design' + (extMatch ? extMatch[0] : '.png');
+        jobs.push(
+          window.mystampOrders.uploadDataUrl(ref, order.ownDesignData, ownName, order.ownDesignType || 'image/png')
+            .then(function (r) { if (r) r.kind = 'customer-design'; return r ? [r] : []; })
         );
-        if (sigRef) { sigRef.kind = 'signature'; fileRefs.push(sigRef); }
+      } else if (order.type === 'signature' && order.signatureData) {
+        jobs.push(
+          window.mystampOrders.uploadDataUrl(ref, order.signatureData, 'signature.png', 'image/png')
+            .then(function (r) { if (r) r.kind = 'signature'; return r ? [r] : []; })
+        );
       } else if (order.previewSvg && window.mystampOrders.svgToPngDataUrl) {
-        var designPng = await window.mystampOrders.svgToPngDataUrl(order.previewSvg, 600);
-        if (designPng) {
-          var designRef = await window.mystampOrders.uploadDataUrl(
-            ref, designPng, 'stamp-design.png', 'image/png'
-          );
-          if (designRef) { designRef.kind = 'design'; fileRefs.push(designRef); }
-        }
+        jobs.push(
+          window.mystampOrders.svgToPngDataUrl(order.previewSvg, 600).then(function (designPng) {
+            if (!designPng) return [];
+            return window.mystampOrders.uploadDataUrl(ref, designPng, 'stamp-design.png', 'image/png')
+              .then(function (r) { if (r) r.kind = 'design'; return r ? [r] : []; });
+          })
+        );
       }
 
-      await window.mystampOrders.saveOrder(buildOrderRow(p, ref, fileRefs, payVia));
-    } catch (e) { /* don't block checkout on a storage hiccup */ }
+      var jobResults = await Promise.all(jobs);
+      var fileRefs = [].concat.apply([], jobResults);
+
+      var saveRes = await window.mystampOrders.saveOrder(buildOrderRow(p, ref, fileRefs, payVia));
+      if (saveRes && saveRes.ok) {
+        console.log('[mystamp] Order saved to Supabase ✓', ref);
+      } else {
+        console.error('[mystamp] Order save FAILED →', saveRes && saveRes.error, ref);
+      }
+    } catch (e) { console.error('[mystamp] persistToSupabase threw →', e); }
   }
 
   async function doConfirm(btn) {
@@ -544,14 +693,6 @@
     var p = compute();
     var ref = 'MS-' + String(Date.now()).slice(-6);
     try { sessionStorage.setItem('mystamp_order_ref', ref); } catch (e) {}
-
-    if (payMethod === 'whatsapp') {
-      setLoading(btn, 'Saving your order…');
-      await persistToSupabase(p, ref, 'whatsapp');
-      window.open('https://wa.me/' + WA_NUMBER + '?text=' + buildWaMessage(p, ref), '_blank');
-      showSuccess(p, ref);
-      return;
-    }
 
     // Card path — save to Supabase first, then create the Telr payment
     var orig = btn.innerHTML;
@@ -581,7 +722,7 @@
         firstName: firstName,
         lastName: lastName,
         email: ($('coEmail').value || '').trim(),
-        phone: ($('coPhone').value || '').trim(),
+        phone: getFullPhone(),
         address: ($('coAddress').value || '').trim(),
         city: $('coEmirate').value || ''
       })
@@ -631,7 +772,7 @@
     } else if (state.delivery === 'express') {
       sub.textContent = "Express order received. We'll WhatsApp you to confirm and dispatch via Careem Box within 4 hours.";
     } else {
-      sub.textContent = "We've got your design. We'll WhatsApp you shortly to finalize and deliver before 6 PM tomorrow.";
+      sub.textContent = "We've got your design. We'll WhatsApp you shortly to finalize and deliver before 2 PM tomorrow.";
     }
     $('successWa').href = 'https://wa.me/' + WA_NUMBER + '?text=' + buildWaMessage(p, ref);
     ov.hidden = false;
@@ -686,7 +827,10 @@
     if (order.company && $('coName') && !$('coName').value) {
       // company isn't a person name — leave name empty, but prefill phone/emirate
     }
-    if (order.phone && $('coPhone')) $('coPhone').value = order.phone;
+    if (order.phone && $('coPhone')) {
+      // Strip any leading "+<code> " so it doesn't duplicate the country selector
+      $('coPhone').value = String(order.phone).replace(/^\+\d{1,4}\s*/, '');
+    }
     if (order.emirate && $('coEmirate')) {
       var opt = Array.prototype.find.call($('coEmirate').options, function (o) { return o.value === order.emirate; });
       if (opt) $('coEmirate').value = order.emirate;

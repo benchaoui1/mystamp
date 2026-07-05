@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Block order/workflow & payment pages from indexing
+Disallow: /checkout.html
+Disallow: /payment-success.html
+Disallow: /payment-failed.html
+
+# Block non-content / backend paths
+Disallow: /api/
+Disallow: /tmp/
+
+Sitemap: https://mystamp.ae/sitemap.xml

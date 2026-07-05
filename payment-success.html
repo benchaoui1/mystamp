@@ -1,13 +1,29 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9XWE3THSBN"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-9XWE3THSBN');
+  </script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payment Successful · MY STAMP</title>
+  <link rel="icon" href="IMAGES/mystamp-company.png" sizes="192x192" type="image/png">
+  <link rel="icon" href="IMAGES/mystamp-favicon-32x32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="IMAGES/mystamp-apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#0035b9">
+  <title>Order Confirmed | MyStamp Payment Successful</title>
+  <meta name="description" content="Your MyStamp payment was successful and your custom stamp order is confirmed. Keep this page for your order reference.">
+  <link rel="canonical" href="https://mystamp.ae/payment-success.html">
   <meta name="robots" content="noindex, nofollow">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="preload" href="FONTS/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="FONTS/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="fonts.css">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="checkout.css">
 </head>
@@ -15,7 +31,7 @@
   <header>
     <div class="header-inner">
       <a href="index.html" class="nav-logo">
-        <img id="logoImg" src="https://mystamp.ae/wp-content/uploads/2025/02/mystamp_logo_fx.svg" alt="My Stamp">
+        <img id="logoImg" src="IMAGES/mystamp-company-stamp-dubai-header-logo-blue.webp" alt="MyStamp" title="MyStamp Company Stamp Maker Dubai" width="250" height="52" decoding="async">
         <span class="logo-fallback" id="logoFallback">MY STAMP</span>
       </a>
     </div>
@@ -33,7 +49,7 @@
         <div class="co-success-check">
           <svg viewBox="0 0 52 52"><circle class="co-success-circle" cx="26" cy="26" r="24" fill="none"/><path class="co-success-tick" fill="none" d="M14 27l8 8 16-16"/></svg>
         </div>
-        <h2 class="co-success-title">Payment received</h2>
+        <h1 class="co-success-title">Payment received</h1>
         <p class="co-success-sub">Thank you! Your payment was successful. Our team will start on your stamp and reach out on WhatsApp to finalize the details.</p>
         <div class="co-success-order">
           <span>Order reference</span>
@@ -55,11 +71,26 @@
       if (ref) document.getElementById('successRef').textContent = ref;
 
       // Confirm the payment server-side and mark the order PAID.
-      // This is a safety net in case Telr's own callback hasn't run yet.
+      // We retry a couple of times in case Telr needs a moment to settle.
       if (ref) {
-        try {
-          fetch('/api/telr-webhook?ref=' + encodeURIComponent(ref)).catch(function () {});
-        } catch (e) {}
+        var attempts = 0;
+        function confirmPaid() {
+          attempts++;
+          fetch('/api/telr-webhook?ref=' + encodeURIComponent(ref))
+            .then(function (r) { return r.json(); })
+            .then(function (res) {
+              console.log('[mystamp] webhook attempt ' + attempts + ':', res);
+              // If Telr says not paid yet, retry up to 4 times (every 2.5s)
+              if (res && res.paid === false && attempts < 4) {
+                setTimeout(confirmPaid, 2500);
+              }
+            })
+            .catch(function (e) {
+              console.log('[mystamp] webhook error:', e);
+              if (attempts < 4) setTimeout(confirmPaid, 2500);
+            });
+        }
+        confirmPaid();
       }
 
       // Clear the saved cart so a refresh doesn't re-show stale data
@@ -68,5 +99,59 @@
       if (logoImg) logoImg.addEventListener('error', function () { this.style.display='none'; if (fb) fb.style.display='flex'; });
     })();
   </script>
+
+  <!-- ═══════════════════════════════════════
+       FLOATING WHATSAPP — Always visible, premium feel
+  ═══════════════════════════════════════ -->
+  <a href="https://wa.me/971544032018?text=Hello%20MY%20STAMP!%20I%20need%20help%20with%20my%20order"
+     class="wa-float"
+     id="waFloat"
+     target="_blank"
+     rel="noopener"
+     aria-label="Chat with us on WhatsApp">
+
+    <span class="wa-float-bubble" id="waFloatBubble">
+      <span class="wa-float-bubble-text">
+        <strong>Need help?</strong>
+        <small>Chat with us instantly</small>
+      </span>
+      <button class="wa-float-bubble-close" id="waFloatClose" aria-label="Close" type="button">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </span>
+
+    <span class="wa-float-btn">
+      <span class="wa-float-ring"></span>
+      <span class="wa-float-ring wa-float-ring-2"></span>
+      <svg class="wa-float-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.557 4.118 1.528 5.845L.057 23.484l5.797-1.52A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.903 0-3.68-.516-5.197-1.413l-.372-.222-3.441.901.921-3.36-.242-.386A9.937 9.937 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+      </svg>
+      <span class="wa-float-badge">1</span>
+    </span>
+  </a>
+  <script>
+    (function () {
+      var waBubble = document.getElementById('waFloatBubble');
+      var waClose  = document.getElementById('waFloatClose');
+      if (waBubble) {
+        setTimeout(function () { waBubble.classList.add('show'); }, 2500);
+        if (waClose) {
+          waClose.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var msg = encodeURIComponent('Hello MY STAMP! I have a question 👋');
+            window.open('https://wa.me/971544032018?text=' + msg, '_blank');
+            waBubble.classList.remove('show');
+            waBubble.classList.add('hide');
+          });
+        }
+      }
+    })();
+  </script>
+
 </body>
 </html>

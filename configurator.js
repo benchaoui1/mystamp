@@ -11,22 +11,25 @@
     shape:       'circle',
     color:       '#3a67ff',
     qty:         1,
-    base:        129,
-    logoFee:     49,
+    base:        99,
+    logoFee:     19,
     logoData:    null,
     logoName:    null,
     logoType:    null,
     licenseData: null,
+    ownDesignData: null,
+    ownDesignName: null,
+    ownDesignType: null,
     licenseType: null,
     circleSize:  38,
-    rectSize:    '50x20',
+    rectSize:    '55x30',
     licenseFile: null
   };
 
   const SZ = {
     circle: '38MM',
     square: '40x40MM',
-    rect:   '50x20MM',
+    rect:   '55x30MM',
     oval:   '50x30MM'
   };
 
@@ -54,7 +57,7 @@
     fPobox:   $('fPobox'),
     fEmirate: $('fEmirate'),
     fLic:     $('fLic'),
-    fPhone:   $('fPhone'),
+    fNote:    $('fNote'),
     licRow:   $('licRow'),
 
     // Toggles
@@ -76,6 +79,17 @@
     licenseFileRow:    $('licenseFileRow'),
     licenseFileName:   $('licenseFileName'),
     removeLicenseBtn:  $('removeLicenseBtn'),
+
+    // Own design (customer uploads their existing stamp artwork)
+    ownDesign:        $('ownDesign'),
+    ownDesignInput:   $('ownDesignInput'),
+    ownPreview:       $('ownPreview'),
+    ownPreviewImg:    $('ownPreviewImg'),
+    ownPreviewPdf:    $('ownPreviewPdf'),
+    ownPreviewFname:  $('ownPreviewFname'),
+    ownPreviewRemove: $('ownPreviewRemove'),
+    fNoteOwn:         $('fNoteOwn'),
+    cfgLeft:          document.querySelector('.cfg-left'),
 
     // Preview + pricing
     stampSvg:  $('stampSvg'),
@@ -156,13 +170,65 @@
     render();
   }
 
+  /* ── Fast upload helper ────────────────────────────
+     Phone-camera photos (logo scans, licence photos, ID
+     photos) can be 4-10MB at full resolution. Uploading
+     that over a mobile connection is what makes "sending
+     a document" feel slow. We downscale + re-compress any
+     image client-side before it ever leaves the device —
+     PDFs and other non-image files pass through untouched. */
+  function compressImageDataUrl(file, maxDim, quality) {
+    return new Promise((resolve) => {
+      var isImage = !!file.type && file.type.indexOf('image/') === 0;
+      var reader = new FileReader();
+      reader.onerror = function () { resolve(null); };
+      reader.onload = function (e) {
+        if (!isImage) {
+          // PDFs / non-images: keep as-is, nothing to compress
+          resolve({ dataUrl: e.target.result, type: file.type || '' });
+          return;
+        }
+        var img = new Image();
+        img.onerror = function () {
+          // If it can't be decoded as an image, fall back to the original
+          resolve({ dataUrl: e.target.result, type: file.type || '' });
+        };
+        img.onload = function () {
+          try {
+            var w = img.width, h = img.height;
+            var scale = Math.min(1, (maxDim || 1600) / Math.max(w, h));
+            var outW = Math.max(1, Math.round(w * scale));
+            var outH = Math.max(1, Math.round(h * scale));
+            var canvas = document.createElement('canvas');
+            canvas.width = outW; canvas.height = outH;
+            var ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, outW, outH);
+            ctx.drawImage(img, 0, 0, outW, outH);
+            var outUrl = canvas.toDataURL('image/jpeg', quality || 0.82);
+            // Safety net: if compression somehow produced something bigger
+            // (rare, e.g. tiny already-optimised images), keep the original.
+            if (outUrl.length >= e.target.result.length) {
+              resolve({ dataUrl: e.target.result, type: file.type || '' });
+            } else {
+              resolve({ dataUrl: outUrl, type: 'image/jpeg' });
+            }
+          } catch (err) {
+            resolve({ dataUrl: e.target.result, type: file.type || '' });
+          }
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
   /* ── Toggles ───────────────────────────────────── */
   function toggleLogo() {
     const on = els.logoToggle.checked;
     const hasFile = !!S.logoData;
-    els.uploadZone.classList.toggle('show', on && !hasFile);
+    els.uploadZone.style.display = (on && !hasFile) ? 'flex' : 'none';
     els.fileRow.style.display = (on && hasFile) ? 'flex' : 'none';
-    els.uploadMeta.style.display = on ? 'flex' : 'none';
     els.logoInfo.style.display = on ? 'flex' : 'none';
     calcPrice();
     render();
@@ -177,17 +243,16 @@
   function handleLogoUpload(input) {
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        S.logoData = e.target.result;
+      els.fileName.textContent = file.name + ' · optimising…';
+      els.fileRow.style.display = 'flex';
+      els.uploadZone.style.display = 'none';
+      compressImageDataUrl(file, 1600, 0.85).then((result) => {
+        S.logoData = result ? result.dataUrl : null;
         S.logoName = file.name;
-        S.logoType = file.type || '';
+        S.logoType = (result && result.type) || file.type || '';
         els.fileName.textContent = file.name;
-        els.fileRow.style.display = 'flex';
-        els.uploadZone.classList.remove('show');
         render();
-      };
-      reader.readAsDataURL(file);
+      });
     }
   }
 
@@ -195,7 +260,7 @@
     S.logoData = null;
     els.logoFile.value = '';
     els.fileRow.style.display = 'none';
-    els.uploadZone.classList.add('show');
+    els.uploadZone.style.display = 'flex';
     render();
   }
 
@@ -207,13 +272,12 @@
       els.licenseFileName.textContent = file.name;
       els.licenseFileRow.style.display = 'flex';
       els.licenseUploadZone.style.display = 'none';
-      // Keep the full file (base64) + type so checkout can upload it
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        S.licenseData = e.target.result;
-        S.licenseType = file.type || '';
-      };
-      reader.readAsDataURL(file);
+      // Keep the full file (base64) + type so checkout can upload it.
+      // Photos of the licence get downscaled; PDFs pass through untouched.
+      compressImageDataUrl(file, 1800, 0.85).then((result) => {
+        S.licenseData = result ? result.dataUrl : null;
+        S.licenseType = (result && result.type) || file.type || '';
+      });
     }
   }
 
@@ -224,6 +288,66 @@
     els.licenseFile.value = '';
     els.licenseFileRow.style.display = 'none';
     els.licenseUploadZone.style.display = 'flex';
+  }
+
+  /* ── Own design upload (customer's existing stamp artwork) ── */
+  function handleOwnDesignUpload(input) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    if (file.size > 25 * 1024 * 1024) { alert('Please upload a file under 25MB.'); return; }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      S.ownDesignData = e.target.result;
+      S.ownDesignName = file.name;
+      S.ownDesignType = file.type || '';
+      showOwnDesign();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function showOwnDesign() {
+    const isPdf = (S.ownDesignType === 'application/pdf') || /\.pdf$/i.test(S.ownDesignName || '');
+    if (isPdf) {
+      els.ownPreviewImg.style.display = 'none';
+      els.ownPreviewPdf.style.display = 'block';
+      els.ownPreviewPdf.src = S.ownDesignData;
+    } else {
+      els.ownPreviewPdf.style.display = 'none';
+      els.ownPreviewImg.style.display = 'block';
+      els.ownPreviewImg.src = S.ownDesignData;
+    }
+    els.ownPreviewFname.textContent = S.ownDesignName || '';
+    // Hide the builder controls + the live SVG preview; show the uploaded design
+    if (els.cfgLeft) els.cfgLeft.style.display = 'none';
+    hideBuilderPreviewBits(true);
+    els.ownPreview.style.display = 'block';
+    if (els.ownDesign) els.ownDesign.classList.add('is-active');
+  }
+
+  function removeOwnDesign() {
+    S.ownDesignData = null;
+    S.ownDesignName = null;
+    S.ownDesignType = null;
+    els.ownDesignInput.value = '';
+    els.ownPreview.style.display = 'none';
+    els.ownPreviewImg.src = '';
+    els.ownPreviewPdf.src = '';
+    if (els.cfgLeft) els.cfgLeft.style.display = '';
+    hideBuilderPreviewBits(false);
+    if (els.ownDesign) els.ownDesign.classList.remove('is-active');
+  }
+
+  // Toggle visibility of the builder's own preview bits (SVG canvas, info boxes,
+  // size pickers, "preview only" note) so only the uploaded design shows.
+  function hideBuilderPreviewBits(hide) {
+    const disp = hide ? 'none' : '';
+    const canvas = els.stampSvg ? els.stampSvg.closest('.canvas-wrap') : null;
+    if (canvas) canvas.style.display = disp;
+    document.querySelectorAll('.preview-card .info-box, .preview-card .preview-note, #sizePicker, #rectSizePicker').forEach((el) => {
+      // remember original display for info boxes that were already hidden
+      if (hide) { el.dataset._od = el.style.display || ''; el.style.display = 'none'; }
+      else { el.style.display = el.dataset._od || ''; }
+    });
   }
 
   /* ── Quantity & price ──────────────────────────── */
@@ -252,7 +376,11 @@
     const emVal = els.fEmirate.value.trim();
     const em = emVal ? (emVal.toUpperCase() + ' - U.A.E') : 'EMIRATE - U.A.E';
     const po = els.fPobox.value.trim();
-    const lc = els.licToggle.checked ? (els.fLic.value.trim() || '') : '';
+    const licNum = els.fLic.value.trim();
+    const lc = els.licToggle.checked ? licNum : '';
+    // When the toggle is on, the design shows "License №:" and appends the
+    // number beside it as the customer types it in.
+    const lcText = els.licToggle.checked ? ('License №:' + (licNum ? ' ' + licNum : '')) : '';
 
     const svg = els.stampSvg;
     svg.innerHTML = '';
@@ -330,10 +458,9 @@
       const RmAr = 118;  // Arabic arc — BOTTOM
 
       svg.setAttribute('viewBox', '0 0 300 300');
-      // Scale relative to the largest circle (40mm = 100%). This ratio is
-      // applied via inline max-width so it scales correctly even inside the
-      // capped mobile preview container.
-      const sizePct = (S.circleSize / 40) * 100;
+      // Scale the preview down so the stamp doesn't look zoomed-in.
+      // 38mm renders at ~73% (visually like a 30mm stamp) and 30mm smaller.
+      const sizePct = (S.circleSize / 52) * 100;
       svg.setAttribute('width', 300);
       svg.setAttribute('height', 300);
       svg.style.width = sizePct + '%';
@@ -398,12 +525,12 @@
         }, 'YOUR LOGO'));
         const lines = [em];
         if (po) lines.push('P.O. Box: ' + po);
-        if (lc) lines.push('License №: ' + lc);
+        if (lcText) lines.push(lcText);
         centerLines(cx, cy + 42, lines);
       } else {
         const lines = [em];
         if (po) lines.push('P.O. Box: ' + po);
-        if (lc) lines.push('License №: ' + lc);
+        if (lcText) lines.push(lcText);
         centerLines(cx, cy, lines);
       }
     }
@@ -474,7 +601,7 @@
       const lowerItems = [];
       if (po) lowerItems.push('P.O. Box: ' + po);
       lowerItems.push(em);
-      if (lc) lowerItems.push('License №: ' + lc);
+      if (lcText) lowerItems.push(lcText);
 
       const lowerH = innerBot - dividerY;
       const lowerLineH = lowerH / lowerItems.length;
@@ -501,11 +628,9 @@
       // Rectangle sizes (width × height in mm) → SVG dimensions
       // Scale: 8px per mm
       const dims = {
-        '50x20': { W: 400, H: 160 },  // 50×20 → wide landscape (default)
-        '50x30': { W: 400, H: 240 },  // 50×30 → standard landscape
-        '55x30': { W: 440, H: 240 }   // 55×30 → wider landscape
+        '55x30': { W: 440, H: 240 }   // 55×30 → standard landscape
       };
-      const { W, H } = dims[S.rectSize] || dims['50x20'];
+      const { W, H } = dims[S.rectSize] || dims['55x30'];
 
       // Padding from the SVG edge — NO corner radius (sharp/right angles)
       const p = 14;
@@ -545,7 +670,7 @@
       allLines.push({ text: en,                       role: 'en' });
       allLines.push({ text: em,                       role: 'em' });
       if (po) allLines.push({ text: 'P.O. Box: ' + po, role: 'small' });
-      if (lc) allLines.push({ text: 'License №: ' + lc, role: 'small' });
+      if (lcText) allLines.push({ text: lcText, role: 'small' });
 
       // ─── ADAPTIVE FONT SIZING based on available height ───
       // Tight (50×20) gets BIGGER fonts now — previous sizes were too small
@@ -674,12 +799,12 @@
         }, 'YOUR LOGO'));
         const lines = [em];
         if (po) lines.push('P.O. Box: ' + po);
-        if (lc) lines.push('License №: ' + lc);
+        if (lcText) lines.push(lcText);
         centerLines(cx, cy + 30, lines);
       } else {
         const lines = [em];
         if (po) lines.push('P.O. Box: ' + po);
-        if (lc) lines.push('License №: ' + lc);
+        if (lcText) lines.push(lcText);
         centerLines(cx, cy, lines);
       }
     }
@@ -687,36 +812,42 @@
 
   /* ── Checkout ──────────────────────────────────── */
   function checkout() {
-    // Validate required fields
-    const required = [
-      { el: els.fName,    name: 'Company Name' },
-      { el: els.fEmirate, name: 'Emirate' },
-      { el: els.fPhone,   name: 'Phone Number' }
-    ];
+    // When the customer uploaded their OWN existing design, the builder fields
+    // (company name, emirate, licence) are hidden and not required — their
+    // artwork already contains everything. Skip those validations entirely.
+    const hasOwnDesign = !!S.ownDesignData;
 
     let firstInvalid = null;
-    required.forEach(({ el }) => {
-      const val = (el.value || '').trim();
-      if (!val) {
-        el.style.borderColor = '#ef4444';
-        el.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.12)';
-        if (!firstInvalid) firstInvalid = el;
+
+    if (!hasOwnDesign) {
+      // Validate required builder fields
+      const required = [
+        { el: els.fName,    name: 'Company Name' },
+        { el: els.fEmirate, name: 'Emirate' }
+      ];
+      required.forEach(({ el }) => {
+        const val = (el.value || '').trim();
+        if (!val) {
+          el.style.borderColor = '#ef4444';
+          el.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.12)';
+          if (!firstInvalid) firstInvalid = el;
+          setTimeout(() => {
+            el.style.borderColor = '';
+            el.style.boxShadow = '';
+          }, 2500);
+        }
+      });
+
+      // License file required (only in builder mode)
+      if (!S.licenseFile) {
+        els.licenseUploadZone.style.borderColor = '#ef4444';
+        els.licenseUploadZone.style.background = 'linear-gradient(180deg, #fef2f2 0%, #fee2e2 100%)';
+        if (!firstInvalid) firstInvalid = els.licenseUploadZone;
         setTimeout(() => {
-          el.style.borderColor = '';
-          el.style.boxShadow = '';
+          els.licenseUploadZone.style.borderColor = '';
+          els.licenseUploadZone.style.background = '';
         }, 2500);
       }
-    });
-
-    // License file required
-    if (!S.licenseFile) {
-      els.licenseUploadZone.style.borderColor = '#ef4444';
-      els.licenseUploadZone.style.background = 'linear-gradient(180deg, #fef2f2 0%, #fee2e2 100%)';
-      if (!firstInvalid) firstInvalid = els.licenseUploadZone;
-      setTimeout(() => {
-        els.licenseUploadZone.style.borderColor = '';
-        els.licenseUploadZone.style.background = '';
-      }, 2500);
     }
 
     if (firstInvalid) {
@@ -733,18 +864,21 @@
       size:        S.shape === 'circle' ? S.circleSize + 'MM'
                   : S.shape === 'rect'  ? S.rectSize + 'MM'
                   : SZ[S.shape],
-      withLogo:    els.logoToggle.checked,
-      logoFile:    S.logoData ? 'uploaded' : null,
+      withLogo:    els.logoToggle.checked && !S.ownDesignData,
+      logoFile:    (S.logoData && !S.ownDesignData) ? 'uploaded' : null,
       // Full files (base64) so checkout can upload them to storage
-      logoData:    S.logoData || null,
-      logoName:    S.logoName || null,
-      logoType:    S.logoType || null,
+      logoData:    S.ownDesignData ? null : (S.logoData || null),
+      logoName:    S.ownDesignData ? null : (S.logoName || null),
+      logoType:    S.ownDesignData ? null : (S.logoType || null),
       withLicNum:  els.licToggle.checked,
       licNum:      els.fLic.value.trim(),
       company:     els.fName.value.trim(),
       pobox:       els.fPobox.value.trim(),
       emirate:     els.fEmirate.value,
-      phone:       els.fPhone.value.trim(),
+      note:        (S.ownDesignData && els.fNoteOwn ? els.fNoteOwn.value.trim() : (els.fNote ? els.fNote.value.trim() : '')),
+      ownDesignData: S.ownDesignData,
+      ownDesignName: S.ownDesignName,
+      ownDesignType: S.ownDesignType,
       license:     S.licenseFile,
       licenseData: S.licenseData || null,
       licenseType: S.licenseType || null,
@@ -807,6 +941,28 @@
     });
     els.fEmirate.addEventListener('change', render);
 
+    // Special note — live counter + auto-grow (stays compact, expands as needed)
+    if (els.fNote) {
+      var noteCount = document.getElementById('noteCount');
+      var grow = function () {
+        els.fNote.style.height = 'auto';
+        els.fNote.style.height = Math.min(els.fNote.scrollHeight, 120) + 'px';
+      };
+      els.fNote.addEventListener('input', function () {
+        if (noteCount) noteCount.textContent = els.fNote.value.length + '/240';
+        grow();
+      });
+    }
+    // Own-design note — same counter + auto-grow
+    if (els.fNoteOwn) {
+      var noteOwnCount = document.getElementById('noteOwnCount');
+      els.fNoteOwn.addEventListener('input', function () {
+        if (noteOwnCount) noteOwnCount.textContent = els.fNoteOwn.value.length + '/240';
+        els.fNoteOwn.style.height = 'auto';
+        els.fNoteOwn.style.height = Math.min(els.fNoteOwn.scrollHeight, 120) + 'px';
+      });
+    }
+
     // Toggles
     els.logoToggle.addEventListener('change', toggleLogo);
     els.licToggle.addEventListener('change', toggleLic);
@@ -825,6 +981,10 @@
     });
     els.licenseFile.addEventListener('change', () => handleLicenseUpload(els.licenseFile));
     els.removeLicenseBtn.addEventListener('click', removeLicense);
+
+    // Own design upload
+    if (els.ownDesignInput) els.ownDesignInput.addEventListener('change', () => handleOwnDesignUpload(els.ownDesignInput));
+    if (els.ownPreviewRemove) els.ownPreviewRemove.addEventListener('click', removeOwnDesign);
 
     // Quantity
     els.qtyMinus.addEventListener('click', () => changeQty(-1));
@@ -890,7 +1050,7 @@
     if (data.company && els.fName) els.fName.value = data.company;
     if (data.pobox && els.fPobox) els.fPobox.value = data.pobox;
     if (data.emirate && els.fEmirate) els.fEmirate.value = data.emirate;
-    if (data.phone && els.fPhone) els.fPhone.value = data.phone;
+    if (data.note && els.fNote) els.fNote.value = data.note;
 
     // License number toggle
     if (data.withLicNum && els.licToggle) {
