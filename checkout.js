@@ -521,8 +521,15 @@
       flashError(target);
     });
     if (problems.length) {
-      problems[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-      if (problems[0].focus) problems[0].focus();
+      // Small delay so the mobile keyboard (from whichever field was
+      // focused before tapping "Pay") finishes closing first — otherwise
+      // the viewport is still resizing and "center" scrolls to the wrong
+      // spot, making it look like the page never moved.
+      var target = problems[0];
+      setTimeout(function () {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (target.focus) target.focus();
+      }, 120);
       return false;
     }
     return true;

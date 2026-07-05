@@ -1704,6 +1704,11 @@ header {
 .cfg-right {
   position: sticky;
   top: 20px;
+  /* The live preview's height changes on every keystroke (font-fit re-runs
+     as the company name gets longer/shorter). Without this, some mobile
+     browsers "scroll anchor" to compensate for that reflow and the page
+     jumps to a completely different section while typing. */
+  overflow-anchor: none;
 }
 /* Mobile-only checkout slot — hidden on desktop (price lives in preview card) */
 #cfgCheckoutMobile { display: none; }
@@ -4948,8 +4953,16 @@ header {
   @keyframes cfgLivePulse { 0%,100%{ box-shadow: 0 0 0 3px rgba(16,185,129,0.18);} 50%{ box-shadow: 0 0 0 6px rgba(16,185,129,0.05);} }
   .cfg-right .size-pills { width: auto; }
   .cfg-right .size-pill { flex: 0 0 auto; }
-  .cfg-right .canvas-wrap { min-height: 0; padding: 14px 10px; margin-bottom: 4px; }
-  .cfg-right #stampSvg { max-width: 230px; }
+  /* Tighter frame on mobile: preview-card already has its own border, so
+     the canvas-wrap's own dashed border was a redundant "box inside a
+     box" that ate extra vertical space. Drop it here and hug the stamp
+     more closely. */
+  .cfg-right .canvas-wrap {
+    min-height: 0; padding: 8px; margin-bottom: 4px;
+    border: none; background: transparent;
+  }
+  .cfg-right .canvas-wrap::before { display: none; }
+  .cfg-right #stampSvg { max-width: 240px; }
   .cfg-right .trust { display: none; }   /* keep the pinned preview compact */
 
   /* Order summary + checkout — relocated BELOW the form on mobile (via JS) */

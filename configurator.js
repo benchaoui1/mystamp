@@ -467,9 +467,11 @@
       const RmAr = 118;  // Arabic arc — BOTTOM
 
       svg.setAttribute('viewBox', '0 0 300 300');
-      // Scale the preview down so the stamp doesn't look zoomed-in.
-      // 38mm renders at ~73% (visually like a 30mm stamp) and 30mm smaller.
-      const sizePct = (S.circleSize / 52) * 100;
+      // Scale the preview so 38mm (the larger, default size) fills most of
+      // the box — same relative ratio as before (30mm still renders
+      // smaller than 38mm, matching real mm proportions), just without the
+      // large empty gap around the circle that a lower baseline caused.
+      const sizePct = (S.circleSize / 40) * 100;
       svg.setAttribute('width', 300);
       svg.setAttribute('height', 300);
       svg.style.width = sizePct + '%';
@@ -870,8 +872,15 @@
     }
 
     if (firstInvalid) {
-      firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      if (firstInvalid.focus) firstInvalid.focus();
+      // A tiny delay lets the mobile keyboard finish closing (from whatever
+      // field was focused before) before we scroll — otherwise the viewport
+      // is still resizing and the "center" position lands in the wrong
+      // spot, making it look like nothing happened.
+      var target = firstInvalid;
+      setTimeout(function () {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (target.focus) target.focus();
+      }, 120);
       return;
     }
 
