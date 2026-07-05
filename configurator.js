@@ -373,6 +373,15 @@
     // Arabic name is auto-extracted by the team from the trade license.
     // We show a stable placeholder so the preview keeps its bilingual layout.
     const ar = 'اسم الشركة بالعربية';
+    // Real iOS Safari has a longstanding bug combining Arabic bidi + SVG
+    // <textPath> on a curve: characters render disconnected/out of order
+    // (desktop Chrome hides this bug, so it looked fine there). The fix:
+    // pre-shape the Arabic into its correct joined presentation-form
+    // glyphs ourselves, put them in left-to-right visual order, and render
+    // with direction="ltr" + unicode-bidi="bidi-override" so the browser
+    // never runs its own (buggy) RTL-on-path logic — same code path as the
+    // English arc, which already renders correctly everywhere.
+    const arVisual = 'ﺔﻴﺑﺮﻌﻟﺎﺑ ﺔﻛﺮﺸﻟﺍ ﻢﺳﺍ';
     const emVal = els.fEmirate.value.trim();
     const em = emVal ? (emVal.toUpperCase() + ' - U.A.E') : 'EMIRATE - U.A.E';
     const po = els.fPobox.value.trim();
@@ -495,26 +504,23 @@
       tEn.appendChild(pEn);
       svg.appendChild(tEn);
 
-      // Arabic — BOTTOM
-      // Force strict RTL rendering: some mobile WebKit builds mis-order
-      // Arabic glyphs on a curved <textPath> unless direction/unicode-bidi
-      // are explicitly set (desktop Chrome hides this bug, real iOS Safari
-      // does not).
-      const arFontSize = fitFontSize(ar, 19, 280, 9);
+      // Arabic — BOTTOM (see arVisual comment above for why this is
+      // pre-shaped + reversed + rendered as forced LTR)
+      const arFontSize = fitFontSize(arVisual, 19, 280, 9);
       const tAr = document.createElementNS(NS, 'text');
       tAr.setAttribute('font-family', FF);
       tAr.setAttribute('font-size', arFontSize);
       tAr.setAttribute('fill', C);
       tAr.setAttribute('font-weight', '700');
       tAr.setAttribute('text-anchor', 'middle');
-      tAr.setAttribute('direction', 'rtl');
+      tAr.setAttribute('direction', 'ltr');
       tAr.setAttribute('unicode-bidi', 'bidi-override');
       const pAr = document.createElementNS(NS, 'textPath');
       pAr.setAttribute('href', '#pAr');
       pAr.setAttribute('startOffset', '50%');
-      pAr.setAttribute('direction', 'rtl');
+      pAr.setAttribute('direction', 'ltr');
       pAr.setAttribute('unicode-bidi', 'bidi-override');
-      pAr.textContent = ar;
+      pAr.textContent = arVisual;
       tAr.appendChild(pAr);
       svg.appendChild(tAr);
 
@@ -777,23 +783,23 @@
       tEnO.appendChild(pEnO);
       svg.appendChild(tEnO);
 
-      // Arabic on BOTTOM
-      // Same RTL/textPath fix as the round stamp (see comment above).
-      const arFs = fitFontSize(ar, 19, 260, 9.5);
+      // Arabic on BOTTOM (see arVisual comment above for why this is
+      // pre-shaped + reversed + rendered as forced LTR)
+      const arFs = fitFontSize(arVisual, 19, 260, 9.5);
       const tArO = document.createElementNS(NS, 'text');
       tArO.setAttribute('font-family', FF);
       tArO.setAttribute('font-size', arFs);
       tArO.setAttribute('fill', C);
       tArO.setAttribute('font-weight', '700');
       tArO.setAttribute('text-anchor', 'middle');
-      tArO.setAttribute('direction', 'rtl');
+      tArO.setAttribute('direction', 'ltr');
       tArO.setAttribute('unicode-bidi', 'bidi-override');
       const pArO = document.createElementNS(NS, 'textPath');
       pArO.setAttribute('href', '#oAr');
       pArO.setAttribute('startOffset', '50%');
-      pArO.setAttribute('direction', 'rtl');
+      pArO.setAttribute('direction', 'ltr');
       pArO.setAttribute('unicode-bidi', 'bidi-override');
-      pArO.textContent = ar;
+      pArO.textContent = arVisual;
       tArO.appendChild(pArO);
       svg.appendChild(tArO);
 
