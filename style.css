@@ -4921,12 +4921,15 @@ header {
   .cfg-left { order: 1; }
   .cfg-right {
     order: -1;
-    position: -webkit-sticky;
-    position: sticky;
-    top: 8px;
+    /* Not sticky on mobile: a pinned box whose height changes on every
+       keystroke (font-fit re-runs) fights with the on-screen keyboard
+       opening/closing, and the page ends up jumping to a random section
+       when the keyboard closes. Letting it scroll normally removes that
+       failure mode entirely. */
+    position: static;
     z-index: 30;
   }
-  /* Compact sticky preview: stamp + size + price/checkout stay in view */
+  /* Compact preview: stamp + size + price/checkout, no longer pinned */
   .cfg-right .preview-card {
     padding: 14px 16px 16px;
     border-color: rgba(0, 46, 138, 0.16);
@@ -4958,11 +4961,11 @@ header {
      box" that ate extra vertical space. Drop it here and hug the stamp
      more closely. */
   .cfg-right .canvas-wrap {
-    min-height: 0; padding: 8px; margin-bottom: 4px;
+    min-height: 0; padding: 2px; margin-bottom: 4px;
     border: none; background: transparent;
   }
   .cfg-right .canvas-wrap::before { display: none; }
-  .cfg-right #stampSvg { max-width: 240px; }
+  .cfg-right #stampSvg { max-width: 250px; }
   .cfg-right .trust { display: none; }   /* keep the pinned preview compact */
 
   /* Order summary + checkout — relocated BELOW the form on mobile (via JS) */

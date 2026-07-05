@@ -467,11 +467,10 @@
       const RmAr = 118;  // Arabic arc — BOTTOM
 
       svg.setAttribute('viewBox', '0 0 300 300');
-      // Scale the preview so 38mm (the larger, default size) fills most of
-      // the box — same relative ratio as before (30mm still renders
-      // smaller than 38mm, matching real mm proportions), just without the
-      // large empty gap around the circle that a lower baseline caused.
-      const sizePct = (S.circleSize / 40) * 100;
+      // 38mm nearly fills the box (barely any gap to the border); 30mm
+      // renders noticeably smaller so the two sizes are clearly
+      // distinguishable at a glance.
+      const sizePct = S.circleSize === 38 ? 98 : 68;
       svg.setAttribute('width', 300);
       svg.setAttribute('height', 300);
       svg.style.width = sizePct + '%';
