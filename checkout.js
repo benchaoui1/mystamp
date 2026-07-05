@@ -491,6 +491,9 @@
     var code = codeSel ? codeSel.value : '971';
     var local = ($('coPhone').value || '').trim();
     if (!local) return '';
+    // Drop a leading "0" (e.g. "0544032018" -> "544032018") so it doesn't
+    // duplicate once the country code is prepended.
+    local = local.replace(/^0+/, '');
     return '+' + code + ' ' + local;
   }
 
@@ -551,40 +554,50 @@
   }
 
   function buildWaMessage(p, ref) {
+    // Kept short on purpose — full details (name, phone, address, stamp
+    // design, uploaded ID) are already saved in Supabase under this order
+    // ref, so the WhatsApp ping only needs the essentials.
     var L = [];
-    L.push('🧾 *New MyStamp order* — ' + ref);
-    L.push('');
-    L.push('*Stamp:* ' + (SHAPE_LABEL[order.shape] || 'Custom') + ' · ' + (order.size || ''));
-    L.push('*Ink:* ' + inkName(order.color));
-    if (order.company) L.push('*Company:* ' + order.company);
-    if (order.withLogo && !order.ownDesignData) L.push('*Logo:* included (+AED ' + (p.logoTotal || LOGO_FEE) + ')');
-    if (order.note) L.push('*Note:* ' + order.note);
-    L.push('*Quantity:* ' + p.qty + (p.freeStamps ? ' paid + ' + p.freeStamps + ' free = ' + p.received + ' stamps' : ''));
-    L.push('');
     var methodName = state.delivery === 'nextday' ? 'Next-day delivery'
       : state.delivery === 'express' ? '4-hour express (Careem Box)' : 'Pickup — Deira, Dubai';
-    L.push('*Method:* ' + methodName);
-    L.push('*Name:* ' + ($('coName').value || '').trim());
-    L.push('*Phone:* ' + getFullPhone());
-    if (state.delivery !== 'pickup') {
-      L.push('*Address:* ' + ($('coAddress').value || '').trim() + ', ' + $('coEmirate').value);
-    }
-    var em = ($('coEmail').value || '').trim();
-    if (em) L.push('*Email:* ' + em);
+    // Signature orders already have "Signature" baked into both the shape
+    // label and order.size ("Signature Stamp") — avoid printing it twice.
+    var stampLine = order.shape === 'signature'
+      ? 'Signature Stamp'
+      : (SHAPE_LABEL[order.shape] || 'Custom') + ' Stamp' + (order.size ? ' · ' + order.size : '');
+    L.push('📦 *My Stamp Order* — ' + ref);
+    L.push(stampLine);
+    L.push('Qty: ' + p.qty + ' · ' + methodName);
+    L.push('*Total: AED ' + p.grand + '*' + (p.deliveryCost === 0 ? ' (free delivery)' : ''));
     L.push('');
-    L.push('*Total:* AED ' + p.grand + (p.deliveryCost === 0 ? ' (free standard delivery)' : ''));
-    if (p.saved > 0) L.push('💰 Saved AED ' + p.saved);
-    L.push('');
-    L.push('— I\'ll send my Emirates ID + design here. ✍️');
+    L.push('Please send the payment link when ready 🙏');
     return encodeURIComponent(L.join('\n'));
   }
 
   /* ── Payment method: card only (Telr) ───────────── */
   var payMethod = 'card';
 
+  // ═══════════════════════════════════════════════════════════
+  // TEMPORARY: WhatsApp-handoff mode
+  // While Telr's live IP restriction is being sorted out with their
+  // support team, checkout sends the order to WhatsApp instead of
+  // opening the Telr card page. The merchant then sends the customer a
+  // manually-created Telr payment link over WhatsApp.
+  // To revert once Telr is fixed: set WHATSAPP_HANDOFF_MODE = false.
+  // ═══════════════════════════════════════════════════════════
+  var WHATSAPP_HANDOFF_MODE = true;
+
   function refreshConfirmButton() {
     var p = compute();
     var icon = $('confirmIcon'), text = $('confirmText'), trust = $('payTrustText');
+    if (WHATSAPP_HANDOFF_MODE) {
+      if (text) text.textContent = 'Continue on WhatsApp';
+      if (icon) icon.innerHTML = '<path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.557 4.118 1.528 5.845L.057 23.484l5.797-1.52A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.903 0-3.68-.516-5.197-1.413l-.372-.222-3.441.901.921-3.36-.242-.386A9.937 9.937 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>';
+      if (icon) icon.setAttribute('fill', 'currentColor');
+      if (icon) icon.setAttribute('stroke', 'none');
+      if (trust) trust.textContent = "We'll send your secure payment link on WhatsApp";
+      return;
+    }
     if (text) text.textContent = 'Pay securely';
     if (icon) icon.innerHTML = '<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>';
     if (icon) icon.setAttribute('fill', 'none');
@@ -705,10 +718,23 @@
     var ref = 'MS-' + String(Date.now()).slice(-6);
     try { sessionStorage.setItem('mystamp_order_ref', ref); } catch (e) {}
 
-    // Card path — save to Supabase first, then create the Telr payment
     var orig = btn.innerHTML;
     btn.disabled = true;
     setLoading(btn, 'Saving your order…');
+
+    if (WHATSAPP_HANDOFF_MODE) {
+      // TEMPORARY: save the order (status stays "pending") then hand the
+      // customer straight to WhatsApp with the full order summary
+      // pre-filled, instead of opening the Telr card page. See the
+      // WHATSAPP_HANDOFF_MODE flag above to revert this once Telr's
+      // live IP issue is resolved.
+      await persistToSupabase(p, ref, 'whatsapp');
+      setLoading(btn, 'Opening WhatsApp…');
+      window.location.href = 'https://wa.me/' + WA_NUMBER + '?text=' + buildWaMessage(p, ref);
+      return;
+    }
+
+    // Card path — save to Supabase first, then create the Telr payment
     await persistToSupabase(p, ref, 'card');
     startCardPayment(btn, p, ref, orig);
   }
