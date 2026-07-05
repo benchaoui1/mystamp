@@ -490,10 +490,16 @@
       defs.appendChild(mk('path', { id: 'pAr', d: arD, fill: 'none' }));
       defs.appendChild(mk('path', { id: 'pEn', d: enD, fill: 'none' }));
 
-      // English — TOP, Times New Roman
+      // English — TOP
       const enFontSize = fitFontSize(en, 16, 240, 8);
       const tEn = document.createElementNS(NS, 'text');
-      tEn.setAttribute('font-family', "'Times New Roman', serif");
+      // Use our own loaded web font instead of the system's Times New
+      // Roman — the fallback that different phones/OSes pick for "serif"
+      // varies a lot and can look slanted/script-like. Manrope renders
+      // identically everywhere and reads as a clean, normal (non-italic)
+      // typeface.
+      tEn.setAttribute('font-family', "'Manrope', sans-serif");
+      tEn.setAttribute('font-style', 'normal');
       tEn.setAttribute('font-size', enFontSize);
       tEn.setAttribute('fill', C);
       tEn.setAttribute('font-weight', '700');
@@ -772,7 +778,10 @@
       // English on TOP
       const enFs = fitFontSize(en, 16, 240, 8);
       const tEnO = document.createElementNS(NS, 'text');
-      tEnO.setAttribute('font-family', "'Times New Roman', serif");
+      // Same reasoning as the round stamp: use our own web font instead of
+      // a system serif fallback that can look slanted/script-like.
+      tEnO.setAttribute('font-family', "'Manrope', sans-serif");
+      tEnO.setAttribute('font-style', 'normal');
       tEnO.setAttribute('font-size', enFs);
       tEnO.setAttribute('fill', C);
       tEnO.setAttribute('font-weight', '700');

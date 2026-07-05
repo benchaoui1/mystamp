@@ -9,5 +9,6 @@ Disallow: /payment-failed.html
 # Block non-content / backend paths
 Disallow: /api/
 Disallow: /tmp/
+Disallow: /admin.html
 
 Sitemap: https://mystamp.ae/sitemap.xml
