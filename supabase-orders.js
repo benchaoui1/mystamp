@@ -48,14 +48,19 @@
   }
 
   // Insert the order. Returns { ok, error }.
-  // Resilient: if the table is missing an optional column (e.g. a newly added
-  // field like note/pobox), Postgres returns a "column ... does not exist"
-  // error. We detect that, drop the offending/optional columns, and retry so
-  // the order is never lost.
-  var OPTIONAL_COLUMNS = [
-    'note', 'pobox', 'with_license_number', 'is_own_design', 'free_stamps',
-    'delivery_fee', 'customer_email', 'customer_address'
-  ];
+  // Resilient: if the table is missing a column, Postgres/PostgREST returns
+  // an error naming that EXACT column (e.g. `column "pobox" of relation
+  // "orders" does not exist`). We parse that error and drop ONLY the named
+  // column, then retry — instead of blindly stripping a whole list of
+  // "optional" columns. That old blind-strip approach was silently
+  // dropping customer_address (and anything else in the list) on every
+  // order whenever ANY one column was missing, even if customer_address
+  // itself existed fine in the table. This keeps every real column that
+  // actually exists.
+  function extractMissingColumn(errMsg) {
+    var m = /column ["']?([a-zA-Z0-9_]+)["']?/i.exec(errMsg || '');
+    return m ? m[1] : null;
+  }
 
   async function saveOrder(orderData) {
     var sb = client();
@@ -71,22 +76,28 @@
       }
     }
 
-    // First attempt with the full payload
-    var first = await tryInsert(orderData);
-    if (first.ok) return first;
+    var row = Object.assign({}, orderData);
+    var lastError = null;
 
-    // If a column is missing, strip optional columns and retry once
-    var msg = (first.error || '').toLowerCase();
-    if (msg.indexOf('column') !== -1 || msg.indexOf('does not exist') !== -1 || msg.indexOf('schema') !== -1) {
-      var slim = {};
-      Object.keys(orderData).forEach(function (k) {
-        if (OPTIONAL_COLUMNS.indexOf(k) === -1) slim[k] = orderData[k];
-      });
-      console.warn('[mystamp] Retrying order insert without optional columns:', first.error);
-      var second = await tryInsert(slim);
-      return second;
+    // Try up to 10 times, each time removing only the specific column
+    // Postgres complains about — never a whole batch at once.
+    for (var attempt = 0; attempt < 10; attempt++) {
+      var result = await tryInsert(row);
+      if (result.ok) return result;
+
+      lastError = result.error;
+      var msg = (result.error || '').toLowerCase();
+      var isMissingColumn = msg.indexOf('column') !== -1 && msg.indexOf('does not exist') !== -1;
+      if (!isMissingColumn) break;
+
+      var badCol = extractMissingColumn(result.error);
+      if (!badCol || !(badCol in row)) break;
+
+      console.warn('[mystamp] Column "' + badCol + '" missing on orders table — retrying without it. Add it in Supabase to stop seeing this.', result.error);
+      delete row[badCol];
     }
-    return first;
+
+    return { ok: false, error: lastError };
   }
 
   async function updateOrderStatus(orderRef, status) {

@@ -524,8 +524,12 @@
 
     problems.forEach(function (el) {
       if (!el) return;
-      var target = el.matches('input,select') ? el : el;
-      flashError(target);
+      // The Emirates ID box already gets its own red-dashed-border look
+      // via the .co-id-error class (added above) — running the generic
+      // flashError on it too just draws a second, ugly rectangular
+      // border around the whole block. Skip it here; the class handles it.
+      if (el === idBlock) return;
+      flashError(el);
     });
     if (problems.length) {
       // Small delay so the mobile keyboard (from whichever field was
