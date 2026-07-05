@@ -188,6 +188,17 @@
   .status-menu button.busy{opacity:.5;pointer-events:none;}
   .dot-sm{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 
+  /* ══════ Address (collapsed, click to reveal + copy) ══════ */
+  .addr-panel{display:none;margin-top:9px;background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:10px 11px;max-width:220px;}
+  .addr-panel.open{display:block;}
+  .addr-text{font-size:12px;color:var(--text);line-height:1.5;margin-bottom:8px;}
+  .addr-copy{
+    border:1px solid var(--border);background:#fff;color:var(--blue-rich);padding:5px 10px;border-radius:7px;
+    font-size:11.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;
+    font-family:'Inter',sans-serif;transition:background .15s;
+  }
+  .addr-copy:hover{background:#eef3ff;}
+
   .muted{color:var(--mute);}
   .loading, .empty{text-align:center;padding:80px 20px;color:var(--mute);font-size:14px;}
   .refresh-note{font-size:11.5px;color:var(--mute);margin-top:14px;text-align:center;}
@@ -500,7 +511,7 @@
     content.className = '';
 
     var html = '<table><thead><tr>' +
-      '<th>Order</th><th>Status</th><th>Company / Customer</th><th>Stamp</th><th>Total</th><th>Files</th><th>Date</th>' +
+      '<th>Order</th><th>Status</th><th>Company / Customer</th><th>Stamp</th><th>Total</th><th>Address</th><th>Files</th><th>Date</th>' +
       '</tr></thead><tbody>';
 
     rows.forEach(function (o, i) {
@@ -523,6 +534,7 @@
         '</div></div></td>' +
         '<td data-label="Stamp">' + escapeHtml(stamp || '—') + '</td>' +
         '<td data-label="Total"><span class="total-aed">AED ' + escapeHtml(String(o.total_aed != null ? o.total_aed : '—')) + '</span></td>' +
+        '<td data-label="Address">' + renderAddress(o, i) + '</td>' +
         '<td data-label="Files">' + renderFiles(docs, i) + '</td>' +
         '<td data-label="Date" class="muted">' + fmtDate(o.created_at) + '</td>' +
         '</tr>';
@@ -580,6 +592,59 @@
         showToast('Network error updating order.');
         btn.classList.remove('busy');
       });
+  }
+
+  function fullAddress(o) {
+    var parts = [o.customer_address, o.emirate, o.pobox ? 'P.O. Box ' + o.pobox : null, 'UAE'].filter(Boolean);
+    return parts.join(', ');
+  }
+
+  function renderAddress(o, i) {
+    var addr = fullAddress(o);
+    if (!o.customer_address && !o.emirate) return '<span class="muted" style="font-size:12px;">—</span>';
+    var id = 'addr-' + i;
+    return '<span class="files-toggle" id="toggle-' + id + '" onclick="toggleAddress(\'' + id + '\')">' +
+      '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
+      (o.emirate || 'Address') + '</span>' +
+      '<div class="addr-panel" id="' + id + '">' +
+        '<div class="addr-text" id="' + id + '-text">' + escapeHtml(addr) + '</div>' +
+        '<button class="addr-copy" onclick="copyAddress(\'' + id + '\', this)">' +
+          '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
+          'Copy' +
+        '</button>' +
+      '</div>';
+  }
+
+  function toggleAddress(id) {
+    var el = document.getElementById(id);
+    var toggle = document.getElementById('toggle-' + id);
+    if (el) el.classList.toggle('open');
+    if (toggle) toggle.classList.toggle('open');
+  }
+
+  function copyAddress(id, btn) {
+    var text = document.getElementById(id + '-text').textContent;
+    var done = function () {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '✓ Copied';
+      setTimeout(function () { btn.innerHTML = orig; }, 1500);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(function () { fallbackCopy(text, done); });
+    } else {
+      fallbackCopy(text, done);
+    }
+  }
+
+  function fallbackCopy(text, done) {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      done();
+    } catch (e) { showToast('Could not copy — select the text manually.'); }
   }
 
   function renderFiles(docs, i) {
