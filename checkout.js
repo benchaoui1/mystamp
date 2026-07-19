@@ -733,8 +733,44 @@
       // WHATSAPP_HANDOFF_MODE flag above to revert this once Telr's
       // live IP issue is resolved.
       await persistToSupabase(p, ref, 'whatsapp');
-      setLoading(btn, 'Opening WhatsApp…');
-      window.location.href = 'https://wa.me/' + WA_NUMBER + '?text=' + buildWaMessage(p, ref);
+
+      var waUrl = 'https://wa.me/' + WA_NUMBER + '?text=' + buildWaMessage(p, ref);
+
+      // Fire GA4 + Google Ads conversion events. No redirect race to worry
+      // about here — we open WhatsApp in a NEW TAB and keep the customer on
+      // this page, so the events fire normally with no artificial delay.
+      if (typeof gtag === 'function') {
+        gtag('event', 'generate_lead', {
+          event_category: 'checkout',
+          event_label: 'whatsapp_handoff',
+          order_ref: ref,
+          value: p.grand,
+          currency: 'AED',
+          transaction_id: ref
+        });
+        gtag('event', 'conversion', {
+          send_to: 'AW-18286129117/7nuCCL702dIcEN3fwI9E',
+          value: p.grand,
+          currency: 'AED',
+          transaction_id: ref
+        });
+      }
+
+      var waWindow = window.open(waUrl, '_blank', 'noopener');
+
+      // Show the order-saved confirmation + a manual link. This covers the
+      // common case where a popup blocker (or a desktop browser with no
+      // WhatsApp Web session) silently blocks window.open.
+      setLoading(btn, 'Order saved ✓');
+      var fallback = $('coWaFallback');
+      var fallbackLink = $('coWaFallbackLink');
+      if (fallbackLink) fallbackLink.href = waUrl;
+      if (fallback) fallback.hidden = false;
+
+      // If the popup was actually blocked, nudge the fallback link into view.
+      if (!waWindow || waWindow.closed || typeof waWindow.closed === 'undefined') {
+        if (fallback) fallback.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
       return;
     }
 

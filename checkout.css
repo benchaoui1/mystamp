@@ -811,3 +811,20 @@
   background: linear-gradient(180deg, #eef3fc 0%, #dbe7fb 100%);
   box-shadow: 0 4px 14px rgba(0, 46, 138, 0.12);
 }
+
+.co-wa-fallback {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #14532d;
+}
+.co-wa-fallback svg { flex-shrink: 0; margin-top: 2px; }
+.co-wa-fallback a { color: #16a34a; font-weight: 700; text-decoration: none; }
+.co-wa-fallback a:hover { text-decoration: underline; }
