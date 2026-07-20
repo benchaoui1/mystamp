@@ -733,12 +733,21 @@
       // WHATSAPP_HANDOFF_MODE flag above to revert this once Telr's
       // live IP issue is resolved.
       await persistToSupabase(p, ref, 'whatsapp');
+      setLoading(btn, 'Opening WhatsApp…');
 
       var waUrl = 'https://wa.me/' + WA_NUMBER + '?text=' + buildWaMessage(p, ref);
 
-      // Fire GA4 + Google Ads conversion events. No redirect race to worry
-      // about here — we open WhatsApp in a NEW TAB and keep the customer on
-      // this page, so the events fire normally with no artificial delay.
+      // IMPORTANT: window.open() gets silently blocked on most mobile
+      // browsers (iOS Safari, in-app browsers) when called after an
+      // `await` — the user-gesture trust expires across the async gap.
+      // Direct redirect (window.location.href) is the reliable path here.
+      var navigated = false;
+      function goToWhatsapp() {
+        if (navigated) return;
+        navigated = true;
+        window.location.href = waUrl;
+      }
+
       if (typeof gtag === 'function') {
         gtag('event', 'generate_lead', {
           event_category: 'checkout',
@@ -752,24 +761,13 @@
           send_to: 'AW-18286129117/7nuCCL702dIcEN3fwI9E',
           value: p.grand,
           currency: 'AED',
-          transaction_id: ref
+          transaction_id: ref,
+          event_callback: goToWhatsapp,
+          event_timeout: 600
         });
-      }
-
-      var waWindow = window.open(waUrl, '_blank', 'noopener');
-
-      // Show the order-saved confirmation + a manual link. This covers the
-      // common case where a popup blocker (or a desktop browser with no
-      // WhatsApp Web session) silently blocks window.open.
-      setLoading(btn, 'Order saved ✓');
-      var fallback = $('coWaFallback');
-      var fallbackLink = $('coWaFallbackLink');
-      if (fallbackLink) fallbackLink.href = waUrl;
-      if (fallback) fallback.hidden = false;
-
-      // If the popup was actually blocked, nudge the fallback link into view.
-      if (!waWindow || waWindow.closed || typeof waWindow.closed === 'undefined') {
-        if (fallback) fallback.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(goToWhatsapp, 600); // hard fallback in case event_callback never fires
+      } else {
+        goToWhatsapp();
       }
       return;
     }
