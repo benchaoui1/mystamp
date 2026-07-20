@@ -418,6 +418,12 @@
                 <span>Order saved — <a id="coWaFallbackLink" href="#" target="_blank" rel="noopener">tap here to continue on WhatsApp</a> if it didn't open automatically.</span>
               </div>
 
+              <!-- TEMPORARY DEBUG BANNER — remove once the Supabase save
+                   issue is confirmed fixed. Shows the exact save error
+                   on-screen so it can be read/screenshotted on mobile
+                   without needing DevTools. -->
+              <div id="coDebugBanner" hidden style="margin-top:12px;padding:12px 14px;border-radius:10px;background:#fef2f2;border:1px solid #fecaca;font-size:12px;line-height:1.5;color:#991b1b;word-break:break-word;font-family:monospace;"></div>
+
               <div class="co-pay-trust">
                 <span id="payTrustText">Secure card payment via Telr</span>
                 <div class="co-pay-icons">

@@ -650,7 +650,10 @@
     // All documents (ID, logo, licence, design) upload IN PARALLEL —
     // this is what makes "sending documents" fast instead of waiting
     // through 4+ uploads one after another.
-    if (!window.mystampOrders) return;
+    if (!window.mystampOrders) {
+      showDebugBanner('SKIPPED (' + ref + '): window.mystampOrders is undefined — supabase-config.js or supabase-orders.js did not load.');
+      return false;
+    }
     try {
       var jobs = [];
 
@@ -710,10 +713,24 @@
       var saveRes = await window.mystampOrders.saveOrder(buildOrderRow(p, ref, fileRefs, payVia));
       if (saveRes && saveRes.ok) {
         console.log('[mystamp] Order saved to Supabase ✓', ref);
+        return true;
       } else {
         console.error('[mystamp] Order save FAILED →', saveRes && saveRes.error, ref);
+        showDebugBanner('SAVE FAILED (' + ref + '): ' + (saveRes && saveRes.error));
+        return false;
       }
-    } catch (e) { console.error('[mystamp] persistToSupabase threw →', e); }
+    } catch (e) {
+      console.error('[mystamp] persistToSupabase threw →', e);
+      showDebugBanner('THREW (' + ref + '): ' + (e && (e.message || String(e))));
+      return false;
+    }
+  }
+
+  function showDebugBanner(msg) {
+    var el = document.getElementById('coDebugBanner');
+    if (!el) return;
+    el.hidden = false;
+    el.textContent = msg;
   }
 
   async function doConfirm(btn) {
@@ -732,7 +749,7 @@
       // pre-filled, instead of opening the Telr card page. See the
       // WHATSAPP_HANDOFF_MODE flag above to revert this once Telr's
       // live IP issue is resolved.
-      await persistToSupabase(p, ref, 'whatsapp');
+      var saved = await persistToSupabase(p, ref, 'whatsapp');
       setLoading(btn, 'Opening WhatsApp…');
 
       var waUrl = 'https://wa.me/' + WA_NUMBER + '?text=' + buildWaMessage(p, ref);
@@ -768,6 +785,19 @@
         setTimeout(goToWhatsapp, 600); // hard fallback in case event_callback never fires
       } else {
         goToWhatsapp();
+      }
+
+      // TEMPORARY: if the Supabase save failed, DON'T auto-redirect —
+      // keep the customer (or tester) on this page so the red debug
+      // banner above stays visible long enough to read/screenshot.
+      // Remove this whole block once the save issue is confirmed fixed.
+      if (!saved) {
+        navigated = true; // cancel the auto-redirect scheduled above
+        setLoading(btn, 'Order NOT saved — see red box below');
+        var fallback = $('coWaFallback');
+        var fallbackLink = $('coWaFallbackLink');
+        if (fallbackLink) fallbackLink.href = waUrl;
+        if (fallback) fallback.hidden = false;
       }
       return;
     }
