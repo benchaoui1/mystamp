@@ -58,7 +58,10 @@
   // itself existed fine in the table. This keeps every real column that
   // actually exists.
   function extractMissingColumn(errMsg) {
-    var m = /column ["']?([a-zA-Z0-9_]+)["']?/i.exec(errMsg || '');
+    var msg = errMsg || '';
+    var m = /column ["']([a-zA-Z0-9_]+)["']/i.exec(msg);
+    if (m) return m[1];
+    m = /["']([a-zA-Z0-9_]+)["']\s+column/i.exec(msg);
     return m ? m[1] : null;
   }
 
@@ -87,7 +90,11 @@
 
       lastError = result.error;
       var msg = (result.error || '').toLowerCase();
-      var isMissingColumn = msg.indexOf('column') !== -1 && msg.indexOf('does not exist') !== -1;
+      // Two message formats seen in the wild:
+      //   Postgres raw:  column "x" does not exist
+      //   PostgREST new: Could not find the 'x' column of 'table' in the schema cache
+      var isMissingColumn = msg.indexOf('column') !== -1 &&
+        (msg.indexOf('does not exist') !== -1 || msg.indexOf('schema cache') !== -1);
       if (!isMissingColumn) break;
 
       var badCol = extractMissingColumn(result.error);
