@@ -10,7 +10,13 @@
 // ═══════════════════════════════════════════════════════════
 
 const SUPABASE_URL = 'https://cqnuqasiwgonellnhvnn.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_xWbq9r17_dVdy8h_HpVZ3g_fNa8VUte';
+// TEMPORARY: reverted from the new sb_publishable_... key back to the
+// legacy anon JWT key. The new key was returning "No API key found in
+// request" (PGRST204) on POST /rest/v1/orders from fresh browser sessions
+// (incognito/mobile), while cached old sessions kept working — pointing to
+// a compatibility issue with the new key system on this gateway version.
+// Revisit switching back once Supabase's new key rollout stabilizes.
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxbnVxYXNpd2dvbmVsbG5odm5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NTM3MzAsImV4cCI6MjA5ODIyOTczMH0.CIbBu5mywyP3egTX8xQ9gjnm7HEslE2n9PlrECETmcU';
 
 // Loaded from CDN in checkout.html (window.supabase)
 const supabaseClient = window.supabase
